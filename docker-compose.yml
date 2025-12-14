@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # --- Base de Datos Compartida ---
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-farmacia
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+    ports:
+      - "3307:3306" # Mapeamos al 3307 de tu PC para no chocar con tu MySQL local
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Script para crear las 3 DBs
+
+  # --- Microservicio Catálogo ---
+  ms-catalogo:
+    build: ./ms-catalogo
+    container_name: ms-catalogo
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_NAME=db_catalogo
+      - DB_USER=root
+      - DB_PASSWORD=admin
+    depends_on:
+      - mysql-db
+
+  # --- Microservicio Inventario ---
+  ms-inventario:
+    build: ./ms-inventario
+    container_name: ms-inventario
+    ports:
+      - "8082:8082"
+    environment:
+      - SERVER_PORT=8082
+      - DB_HOST=mysql-db
+      - DB_NAME=db_inventario
+      - DB_USER=root
+      - DB_PASSWORD=admin
+      # Aquí le decimos: "Busca el catálogo en el contenedor llamado ms-catalogo"
+      - CATALOGO_URL=http://ms-catalogo:8081/api/medicamentos
+    depends_on:
+      - mysql-db
+      - ms-catalogo
+
+  # --- Microservicio Ventas ---
+  ms-ventas:
+    build: ./ms-ventas
+    container_name: ms-ventas
+    ports:
+      - "8083:8083"
+    environment:
+      - SERVER_PORT=8083
+      - DB_HOST=mysql-db
+      - DB_NAME=db_ventas
+      - DB_USER=root
+      - DB_PASSWORD=admin
+      # Conexión con los otros contenedores
+      - CATALOGO_URL=http://ms-catalogo:8081/api/medicamentos
+      - INVENTARIO_URL=http://ms-inventario:8082/api/inventarios
+    depends_on:
+      - mysql-db
+      - ms-catalogo
+      - ms-inventario
+
+volumes:
+  mysql_data:
