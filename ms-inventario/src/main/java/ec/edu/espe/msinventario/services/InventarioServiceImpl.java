@@ -59,4 +59,26 @@ public class InventarioServiceImpl implements InventarioService {
         }
         return repository.findBySucursalAndMedicamentoId(sucursalOpt.get(), medicamentoId);
     }
+
+    @Override
+    public void descontarStock(Long sucursalId, Long medicamentoId, Integer cantidad) {
+        Optional<ec.edu.espe.msinventario.models.entities.Sucursal> sucursalOpt = sucursalRepository.findById(sucursalId);
+        if (sucursalOpt.isEmpty()) {
+            throw new RuntimeException("Sucursal no encontrada: " + sucursalId);
+        }
+
+        Optional<Inventario> inventarioOpt = repository.findBySucursalAndMedicamentoId(sucursalOpt.get(), medicamentoId);
+        if (inventarioOpt.isEmpty()) {
+            throw new RuntimeException("No hay inventario para este producto en la sucursal indicada");
+        }
+
+        Inventario inventario = inventarioOpt.get();
+
+        if (inventario.getCantidad() < cantidad) {
+            throw new RuntimeException("Stock insuficiente. Disponible: " + inventario.getCantidad());
+        }
+
+        inventario.setCantidad(inventario.getCantidad() - cantidad);
+        repository.save(inventario);
+    }
 }

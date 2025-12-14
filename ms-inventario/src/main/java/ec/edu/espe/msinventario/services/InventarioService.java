@@ -8,4 +8,5 @@ public interface InventarioService {
     Inventario asignarStock(Inventario inventario);
     Optional<Inventario> buscarPorId(Long id);
     Optional<Inventario> buscarPorSucursalYMedicamento(Long sucursalId, Long medicamentoId);
+    void descontarStock(Long sucursalId, Long medicamentoId, Integer cantidad);
 }

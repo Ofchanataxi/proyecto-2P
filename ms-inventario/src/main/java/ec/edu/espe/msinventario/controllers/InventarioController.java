@@ -1,5 +1,6 @@
 package ec.edu.espe.msinventario.controllers;
 
+import ec.edu.espe.msinventario.models.dto.StockRequestDTO;
 import ec.edu.espe.msinventario.models.entities.Inventario;
 import ec.edu.espe.msinventario.services.InventarioService;
 import jakarta.validation.Valid;
@@ -37,10 +38,19 @@ public class InventarioController {
         return inv.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // En InventarioController.java
     @GetMapping("/verificar/{sucursalId}/{medicamentoId}")
     public ResponseEntity<Inventario> verificarStock(@PathVariable Long sucursalId, @PathVariable Long medicamentoId) {
 
         return ResponseEntity.of(service.buscarPorSucursalYMedicamento(sucursalId, medicamentoId));
+    }
+
+    @PutMapping("/descontar")
+    public ResponseEntity<?> descontar(@RequestBody StockRequestDTO request) {
+        try {
+            service.descontarStock(request.getSucursalId(), request.getMedicamentoId(), request.getCantidad());
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
