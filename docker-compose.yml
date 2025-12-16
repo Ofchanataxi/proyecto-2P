@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # --- Base de Datos Compartida ---
   mysql-db:
@@ -8,11 +6,16 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     ports:
-      - "3307:3306" # Mapeamos al 3307 de tu PC para no chocar con tu MySQL local
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Script para crear las 3 DBs
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   # --- Microservicio Catálogo ---
   ms-catalogo:
@@ -28,7 +31,9 @@ services:
       - DB_USER=root
       - DB_PASSWORD=admin
     depends_on:
-      - mysql-db
+      mysql-db:
+        condition: service_healthy
+    restart: unless-stopped
 
   # --- Microservicio Inventario ---
   ms-inventario:
@@ -39,14 +44,17 @@ services:
     environment:
       - SERVER_PORT=8082
       - DB_HOST=mysql-db
+      - DB_PORT=3306
       - DB_NAME=db_inventario
       - DB_USER=root
       - DB_PASSWORD=admin
-      # Aquí le decimos: "Busca el catálogo en el contenedor llamado ms-catalogo"
       - CATALOGO_URL=http://ms-catalogo:8081/api/medicamentos
     depends_on:
-      - mysql-db
-      - ms-catalogo
+      mysql-db:
+        condition: service_healthy
+      ms-catalogo:
+        condition: service_started
+    restart: unless-stopped
 
   # --- Microservicio Ventas ---
   ms-ventas:
@@ -57,16 +65,20 @@ services:
     environment:
       - SERVER_PORT=8083
       - DB_HOST=mysql-db
+      - DB_PORT=3306
       - DB_NAME=db_ventas
       - DB_USER=root
       - DB_PASSWORD=admin
-      # Conexión con los otros contenedores
       - CATALOGO_URL=http://ms-catalogo:8081/api/medicamentos
       - INVENTARIO_URL=http://ms-inventario:8082/api/inventarios
     depends_on:
-      - mysql-db
-      - ms-catalogo
-      - ms-inventario
+      mysql-db:
+        condition: service_healthy
+      ms-catalogo:
+        condition: service_started
+      ms-inventario:
+        condition: service_started
+    restart: unless-stopped
 
   # --- Frontend React ---
   ms-frontend:
@@ -75,14 +87,18 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - VITE_CATALOGO_HOST=http://ms-catalogo
-      - VITE_INVENTARIO_HOST=http://ms-inventario
-      - VITE_VENTAS_HOST=http://ms-ventas
+      - VITE_CATALOGO_HOST=http://localhost
+      - VITE_INVENTARIO_HOST=http://localhost
+      - VITE_VENTAS_HOST=http://localhost
       - NODE_ENV=production
     depends_on:
-      - ms-catalogo
-      - ms-inventario
-      - ms-ventas
+      ms-catalogo:
+        condition: service_started
+      ms-inventario:
+        condition: service_started
+      ms-ventas:
+        condition: service_started
+    restart: unless-stopped
 
 volumes:
   mysql_data:
