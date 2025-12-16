@@ -29,6 +29,10 @@ public class Medicamento {
     @Positive(message = "El precio debe ser mayor a cero")
     private Double precioUnitario;
 
+    private String categoria;
+
+    private String imagenUrl;
+
     // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -40,4 +44,8 @@ public class Medicamento {
     public void setLaboratorio(String laboratorio) { this.laboratorio = laboratorio; }
     public Double getPrecioUnitario() { return precioUnitario; }
     public void setPrecioUnitario(Double precioUnitario) { this.precioUnitario = precioUnitario; }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
+    public String getImagenUrl() { return imagenUrl; }
+    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
 }

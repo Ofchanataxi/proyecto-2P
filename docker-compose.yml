@@ -68,5 +68,21 @@ services:
       - ms-catalogo
       - ms-inventario
 
+  # --- Frontend React ---
+  ms-frontend:
+    build: ./ms-frontend
+    container_name: ms-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_CATALOGO_HOST=http://ms-catalogo
+      - VITE_INVENTARIO_HOST=http://ms-inventario
+      - VITE_VENTAS_HOST=http://ms-ventas
+      - NODE_ENV=production
+    depends_on:
+      - ms-catalogo
+      - ms-inventario
+      - ms-ventas
+
 volumes:
   mysql_data:

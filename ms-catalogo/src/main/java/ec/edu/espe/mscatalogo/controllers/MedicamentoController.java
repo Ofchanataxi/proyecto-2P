@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/medicamentos")
+@CrossOrigin(origins = "*")
 public class MedicamentoController {
 
     @Autowired
@@ -44,6 +45,8 @@ public class MedicamentoController {
             medDb.setLaboratorio(medicamento.getLaboratorio());
             medDb.setPrecioUnitario(medicamento.getPrecioUnitario());
             medDb.setCodigoBarra(medicamento.getCodigoBarra());
+            medDb.setCategoria(medicamento.getCategoria());
+            medDb.setImagenUrl(medicamento.getImagenUrl());
             return ResponseEntity.status(HttpStatus.CREATED).body(service.guardar(medDb));
         }
         return ResponseEntity.notFound().build();
