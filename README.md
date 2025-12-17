@@ -18,6 +18,241 @@
 ### 💻 Acceso a la Aplicación
 Visita: **http://localhost:3000** en tu navegador favorito
 
+---
+
+## 🐳 Instalación con Docker
+
+### Prerrequisitos
+
+Antes de comenzar, asegúrate de tener instalado:
+
+- **Docker Desktop** (incluye Docker y Docker Compose)
+  - [Descargar para Windows](https://www.docker.com/products/docker-desktop/)
+  - [Descargar para Mac](https://www.docker.com/products/docker-desktop/)
+  - [Descargar para Linux](https://docs.docker.com/desktop/install/linux-install/)
+- **Git** (para clonar el repositorio)
+  - [Descargar Git](https://git-scm.com/downloads)
+
+### 🚀 Instalación Rápida
+
+#### 1️⃣ Clonar el Repositorio
+
+```bash
+git clone https://github.com/Ofchanataxi/proyecto-2P.git
+cd proyecto-2P
+```
+
+#### 2️⃣ Levantar los Servicios con Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+Este comando:
+- ✅ Descarga las imágenes necesarias (MySQL, Java, Node, Nginx)
+- ✅ Construye los 4 microservicios (catálogo, inventario, ventas, frontend)
+- ✅ Crea las 3 bases de datos (db_catalogo, db_inventario, db_ventas)
+- ✅ Inicializa los datos de ejemplo
+- ✅ Levanta todos los servicios en segundo plano
+
+**Tiempo estimado:** 2-5 minutos (primera vez)
+
+#### 3️⃣ Verificar que los Servicios Estén Corriendo
+
+```bash
+docker-compose ps
+```
+
+Deberías ver 5 contenedores corriendo:
+- `mysql-farmacia` (Base de datos)
+- `ms-catalogo` (API Catálogo)
+- `ms-inventario` (API Inventario)
+- `ms-ventas` (API Ventas)
+- `ms-frontend` (Aplicación Web)
+
+#### 4️⃣ Acceder a la Aplicación
+
+Espera 30 segundos para que todos los servicios inicien completamente, luego abre:
+
+**🌐 Frontend:** http://localhost:3000
+
+**APIs (opcional):**
+- Catálogo: http://localhost:8081/api/medicamentos
+- Inventario: http://localhost:8082/api/sucursales
+- Ventas: http://localhost:8083/api/ventas
+
+---
+
+### 📋 Comandos Útiles de Docker
+
+#### Ver Logs de los Servicios
+
+```bash
+# Ver logs de todos los servicios
+docker-compose logs -f
+
+# Ver logs de un servicio específico
+docker-compose logs -f ms-frontend
+docker-compose logs -f ms-ventas
+docker-compose logs -f ms-catalogo
+docker-compose logs -f ms-inventario
+```
+
+#### Detener los Servicios
+
+```bash
+# Detener sin eliminar contenedores
+docker-compose stop
+
+# Detener y eliminar contenedores
+docker-compose down
+```
+
+#### Reiniciar un Servicio Específico
+
+```bash
+# Reiniciar el frontend
+docker-compose restart ms-frontend
+
+# Reiniciar el servicio de ventas
+docker-compose restart ms-ventas
+```
+
+#### Reconstruir los Servicios
+
+Si haces cambios en el código:
+
+```bash
+# Reconstruir todos los servicios
+docker-compose build
+
+# Reconstruir y levantar
+docker-compose up -d --build
+
+# Reconstruir solo un servicio
+docker-compose build ms-ventas
+docker-compose up -d ms-ventas
+```
+
+#### Resetear la Base de Datos
+
+```bash
+# Detener y eliminar todo (incluyendo volúmenes)
+docker-compose down -v
+
+# Volver a levantar (se reinicializará la BD)
+docker-compose up -d
+```
+
+#### Ver el Estado de los Contenedores
+
+```bash
+# Ver contenedores corriendo
+docker ps
+
+# Ver todos los contenedores (incluso detenidos)
+docker ps -a
+
+# Ver uso de recursos
+docker stats
+```
+
+---
+
+### 🔧 Solución de Problemas
+
+#### Problema: Los servicios no inician
+
+**Solución:**
+```bash
+# Detener todo
+docker-compose down
+
+# Limpiar volúmenes
+docker-compose down -v
+
+# Volver a levantar
+docker-compose up -d
+
+# Ver logs para identificar errores
+docker-compose logs -f
+```
+
+#### Problema: Puerto ya en uso
+
+Si ves un error como "port is already allocated":
+
+**Solución:**
+```bash
+# Opción 1: Detener el proceso que usa el puerto
+# En Windows (PowerShell):
+netstat -ano | findstr :3000
+taskkill /PID <PID> /F
+
+# Opción 2: Cambiar el puerto en docker-compose.yml
+# Edita el archivo y cambia:
+ports:
+  - "3001:3000"  # En lugar de 3000:3000
+```
+
+#### Problema: Error de conexión a la base de datos
+
+**Solución:**
+```bash
+# Esperar más tiempo (los servicios tardan en iniciar)
+# Verificar que MySQL esté healthy:
+docker-compose ps
+
+# Si no está healthy, reiniciar:
+docker-compose restart mysql-farmacia
+```
+
+#### Problema: Cambios en el código no se reflejan
+
+**Solución:**
+```bash
+# Reconstruir la imagen
+docker-compose build ms-frontend  # o el servicio que modificaste
+docker-compose up -d
+
+# O reconstruir todo
+docker-compose up -d --build
+```
+
+---
+
+### 🗂️ Estructura de Servicios
+
+```
+Puerto 3000  → Frontend (React)
+Puerto 8081  → MS-Catálogo (Spring Boot)
+Puerto 8082  → MS-Inventario (Spring Boot)
+Puerto 8083  → MS-Ventas (Spring Boot)
+Puerto 3307  → MySQL (Base de datos)
+```
+
+---
+
+### 📦 Datos de Ejemplo
+
+El sistema viene con datos precargados:
+
+**Medicamentos:** 15 productos en 4 categorías
+- Analgésicos (4 productos)
+- Antibióticos (4 productos)
+- Vitaminas (4 productos)
+- Ofertas (3 productos)
+
+**Sucursales:** 4 ubicaciones
+- Farmacia Centro
+- Farmacia Norte
+- Farmacia Sur
+- Farmacia Valle
+
+**Inventario:** Stock disponible en todas las sucursales
+
+---
+
 ## �️ Guía de Compras
 
 ### 🏪 Paso 1: Selecciona tu Sucursal
