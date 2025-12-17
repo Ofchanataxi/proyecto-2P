@@ -1,4 +1,4 @@
-# � Farmacia Online - Tu Salud, Nuestra Prioridad
+#   Farmacia Online - Tu Salud, Nuestra Prioridad
 
 ## 🌟 ¿Qué es Farmacia Online?
 
@@ -10,7 +10,7 @@
 🏪 **Múltiples Sucursales** - Elige la sucursal más cercana a ti
 🛒 **Carrito de Compras** - Agrega productos y gestiona tu pedido
 📦 **Categorías Organizadas** - Analgesicos, Antibioticos, Vitaminas y Ofertas
-� **Ofertas Especiales** - Descuentos de hasta 30% en productos seleccionados
+  **Ofertas Especiales** - Descuentos de hasta 30% en productos seleccionados
 📱 **Diseño Responsivo** - Funciona perfectamente en móviles y computadoras
 
 ## 🚀 Cómo Usar la Plataforma
@@ -253,7 +253,7 @@ El sistema viene con datos precargados:
 
 ---
 
-## �️ Guía de Compras
+##  ️ Guía de Compras
 
 ### 🏪 Paso 1: Selecciona tu Sucursal
 1. Al ingresar, elige la sucursal más cercana a tu ubicación
@@ -313,7 +313,7 @@ El sistema viene con datos precargados:
 - **Email:** info@farmacia.com
 - **Soporte en línea:** Disponible 24/7
 
-## � ¿Por Qué Elegirnos?
+##   ¿Por Qué Elegirnos?
 
 ### ✅ Confianza y Seguridad
 - Medicamentos de laboratorios certificados
@@ -354,7 +354,7 @@ Tu bienestar es nuestra máxima prioridad. Por eso:
 - 💻 **Computadoras** (Windows, Mac, Linux)
 - 📱 **Tablets** (iPad, Android tablets)
 
-## � Tecnología de Vanguardia
+##   Tecnología de Vanguardia
 
 Nuestra plataforma utiliza las tecnologías más modernas para ofrecerte:
 
@@ -397,3 +397,6 @@ Si necesitas ayuda:
 
 Tu sistema de farmacia está completamente funcional y listo para usar.
 Abre http://localhost:3000 y comienza a explorar! 🚀
+## Validaciones
+Se implementaron validaciones en frontend y backend para el módulo de ventas y carrito de compras.
+
