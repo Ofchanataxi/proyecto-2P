@@ -59,10 +59,10 @@ CREATE TABLE IF NOT EXISTS sucursales (
 
 -- Insertar sucursales de ejemplo
 INSERT INTO sucursales (nombre, direccion, telefono) VALUES
-('Farmacia Centro', 'Av. Amazonas y Naciones Unidas', '02-2345678'),
-('Farmacia Norte', 'Av. 6 de Diciembre y Eloy Alfaro', '02-2345679'),
-('Farmacia Sur', 'Av. Mariscal Sucre y Quitumbe', '02-2345680'),
-('Farmacia Valle', 'Av. Interoceánica Km 2.5', '02-2345681');
+('Farmacia Centro', 'Av. Amazonas y Naciones Unidas', '0223456789'),
+('Farmacia Norte', 'Av. 6 de Diciembre y Eloy Alfaro', '0223456780'),
+('Farmacia Sur', 'Av. Mariscal Sucre y Quitumbe', '0223456781'),
+('Farmacia Valle', 'Av. Interoceánica Km 2.5', '0223456782');
 
 -- Crear tabla inventarios
 CREATE TABLE IF NOT EXISTS inventarios (
@@ -101,14 +101,25 @@ INSERT INTO inventarios (medicamento_id, sucursal_id, cantidad) VALUES
 -- ==========================================
 USE db_ventas;
 
+-- Crear tabla clientes
+CREATE TABLE IF NOT EXISTS clientes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    cedula VARCHAR(10) NOT NULL,
+    direccion VARCHAR(200),
+    email VARCHAR(100),
+    telefono VARCHAR(10)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Crear tabla ventas
 CREATE TABLE IF NOT EXISTS ventas (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id BIGINT,
     sucursal_id BIGINT NOT NULL,
-    fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total DECIMAL(10,2) NOT NULL,
-    estado VARCHAR(50) DEFAULT 'COMPLETADA'
-);
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Crear tabla detalles_venta
 CREATE TABLE IF NOT EXISTS detalles_venta (
@@ -119,4 +130,4 @@ CREATE TABLE IF NOT EXISTS detalles_venta (
     precio_unitario DECIMAL(10,2) NOT NULL,
     subtotal DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (venta_id) REFERENCES ventas(id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
