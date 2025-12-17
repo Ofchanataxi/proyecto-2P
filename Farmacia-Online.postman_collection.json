@@ -1,0 +1,340 @@
+{
+    "info": {
+        "name": "Farmacia Online - API Collection",
+        "_postman_id": "farmacia-online-2024",
+        "description": "Colección completa de endpoints para el sistema de Farmacia Online con microservicios",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "MS-Catálogo",
+            "item": [
+                {
+                    "name": "Obtener todos los medicamentos",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8081/api/medicamentos",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8081",
+                            "path": [
+                                "api",
+                                "medicamentos"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Obtener medicamento por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8081/api/medicamentos/1",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8081",
+                            "path": [
+                                "api",
+                                "medicamentos",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Crear medicamento",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nombre\": \"Acetaminofén 500mg\",\n  \"codigoBarra\": \"7501234567999\",\n  \"laboratorio\": \"Bayer\",\n  \"precioUnitario\": 4.50,\n  \"categoria\": \"Analgésicos\",\n  \"imagenUrl\": \"https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8081/api/medicamentos",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8081",
+                            "path": [
+                                "api",
+                                "medicamentos"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Buscar medicamentos por categoría",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8081/api/medicamentos?categoria=Analgésicos",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8081",
+                            "path": [
+                                "api",
+                                "medicamentos"
+                            ],
+                            "query": [
+                                {
+                                    "key": "categoria",
+                                    "value": "Analgésicos"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "MS-Inventario",
+            "item": [
+                {
+                    "name": "Obtener todas las sucursales",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8082/api/sucursales",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8082",
+                            "path": [
+                                "api",
+                                "sucursales"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Obtener inventario por sucursal",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8082/api/inventarios/sucursal/1",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8082",
+                            "path": [
+                                "api",
+                                "inventarios",
+                                "sucursal",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Verificar stock de medicamento en sucursal",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8082/api/inventarios/stock?sucursalId=1&medicamentoId=1",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8082",
+                            "path": [
+                                "api",
+                                "inventarios",
+                                "stock"
+                            ],
+                            "query": [
+                                {
+                                    "key": "sucursalId",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "medicamentoId",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Descontar stock",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"sucursalId\": 1,\n  \"medicamentoId\": 1,\n  \"cantidad\": 5\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8082/api/inventarios/descontar",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8082",
+                            "path": [
+                                "api",
+                                "inventarios",
+                                "descontar"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "MS-Ventas",
+            "item": [
+                {
+                    "name": "Crear venta completa",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"cliente\": {\n    \"nombre\": \"Juan Pérez González\",\n    \"cedula\": \"1714567890\",\n    \"email\": \"juan.perez@example.com\",\n    \"telefono\": \"0987654321\"\n  },\n  \"sucursalId\": 1,\n  \"detalles\": [\n    {\n      \"medicamentoId\": 1,\n      \"cantidad\": 2,\n      \"precioUnitario\": 3.50,\n      \"subtotal\": 7.00\n    },\n    {\n      \"medicamentoId\": 2,\n      \"cantidad\": 1,\n      \"precioUnitario\": 5.25,\n      \"subtotal\": 5.25\n    }\n  ],\n  \"total\": 12.25\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8083/api/ventas",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8083",
+                            "path": [
+                                "api",
+                                "ventas"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Crear venta - Error validación cédula",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"cliente\": {\n    \"nombre\": \"María López\",\n    \"cedula\": \"123\",\n    \"email\": \"maria@example.com\",\n    \"telefono\": \"0987654321\"\n  },\n  \"sucursalId\": 1,\n  \"detalles\": [\n    {\n      \"medicamentoId\": 1,\n      \"cantidad\": 1,\n      \"precioUnitario\": 3.50,\n      \"subtotal\": 3.50\n    }\n  ],\n  \"total\": 3.50\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8083/api/ventas",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8083",
+                            "path": [
+                                "api",
+                                "ventas"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Crear venta - Error validación teléfono",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"cliente\": {\n    \"nombre\": \"Carlos Ramírez\",\n    \"cedula\": \"1714567890\",\n    \"email\": \"carlos@example.com\",\n    \"telefono\": \"1234567890\"\n  },\n  \"sucursalId\": 1,\n  \"detalles\": [\n    {\n      \"medicamentoId\": 1,\n      \"cantidad\": 1,\n      \"precioUnitario\": 3.50,\n      \"subtotal\": 3.50\n    }\n  ],\n  \"total\": 3.50\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8083/api/ventas",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8083",
+                            "path": [
+                                "api",
+                                "ventas"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Crear venta - Error validación email",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"cliente\": {\n    \"nombre\": \"Ana Torres\",\n    \"cedula\": \"1714567890\",\n    \"email\": \"email-invalido@\",\n    \"telefono\": \"0987654321\"\n  },\n  \"sucursalId\": 1,\n  \"detalles\": [\n    {\n      \"medicamentoId\": 1,\n      \"cantidad\": 1,\n      \"precioUnitario\": 3.50,\n      \"subtotal\": 3.50\n    }\n  ],\n  \"total\": 3.50\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8083/api/ventas",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8083",
+                            "path": [
+                                "api",
+                                "ventas"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ]
+}
