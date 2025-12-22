@@ -8,7 +8,6 @@ const SucursalesAdmin = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     direccion: '',
-    telefono: '',
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -51,7 +50,6 @@ const SucursalesAdmin = () => {
     setFormData({
       nombre: sucursal.nombre,
       direccion: sucursal.direccion,
-      telefono: sucursal.telefono || '',
     });
     setEditingId(sucursal.id);
   };
@@ -69,7 +67,7 @@ const SucursalesAdmin = () => {
   };
 
   const resetForm = () => {
-    setFormData({ nombre: '', direccion: '', telefono: '' });
+    setFormData({ nombre: '', direccion: '' });
     setEditingId(null);
   };
 
@@ -97,12 +95,7 @@ const SucursalesAdmin = () => {
             onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
             required
           />
-          <input
-            type="text"
-            placeholder="Teléfono"
-            value={formData.telefono}
-            onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-          />
+
         </div>
         <div className="form-actions">
           <button type="submit" className="btn-submit">
@@ -123,7 +116,7 @@ const SucursalesAdmin = () => {
               <th>ID</th>
               <th>Nombre</th>
               <th>Dirección</th>
-              <th>Teléfono</th>
+
               <th>Acciones</th>
             </tr>
           </thead>
@@ -133,7 +126,7 @@ const SucursalesAdmin = () => {
                 <td>{suc.id}</td>
                 <td>{suc.nombre}</td>
                 <td>{suc.direccion}</td>
-                <td>{suc.telefono || 'N/A'}</td>
+
                 <td className="actions">
                   <button onClick={() => handleEdit(suc)} className="btn-edit">
                     ✏️
