@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-const INVENTARIO_HOST = import.meta.env.VITE_INVENTARIO_HOST || 'http://localhost';
+// Apunta al API Gateway (puerto 8080) que redirige a ms-inventario internamente
+const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
 
 const inventarioAPI = axios.create({
-  baseURL: `${INVENTARIO_HOST}:8082/api`,
+  baseURL: `${API_GATEWAY}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,7 +12,7 @@ const inventarioAPI = axios.create({
 
 export const inventarioService = {
   // --- INVENTARIOS ---
-  
+
   // Crear inventario
   createInventario: async (inventario) => {
     const response = await inventarioAPI.post('/inventarios', inventario);
@@ -37,7 +38,7 @@ export const inventarioService = {
   },
 
   // --- SUCURSALES ---
-  
+
   // Obtener todas las sucursales
   getAllSucursales: async () => {
     const response = await inventarioAPI.get('/sucursales');

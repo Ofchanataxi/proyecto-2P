@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: ms-catalogo
+          uri: http://ms-catalogo:8081
+          predicates:
+            - Path=/api/medicamentos/**
+
+        - id: ms-inventario-sucursales
+          uri: http://ms-inventario:8082
+          predicates:
+            - Path=/api/sucursales/**
+
+        - id: ms-inventario
+          uri: http://ms-inventario:8082
+          predicates:
+            - Path=/api/inventarios/**
+
+        - id: ms-ventas
+          uri: http://ms-ventas:8083
+          predicates:
+            - Path=/api/ventas/**
+
+        - id: ms-ventas-detalles
+          uri: http://ms-ventas:8083
+          predicates:
+            - Path=/api/detalle-ventas/**
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.netty.http.client: DEBUG

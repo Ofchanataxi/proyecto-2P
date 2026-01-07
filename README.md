@@ -224,12 +224,33 @@ docker-compose up -d --build
 ### 🗂️ Estructura de Servicios
 
 ```
-Puerto 3000  → Frontend (React)
+Puerto 3000  → Frontend (React/Vite)
+Puerto 8080  → API Gateway (Spring Cloud Gateway) ← PUNTO DE ENTRADA ÚNICO
 Puerto 8081  → MS-Catálogo (Spring Boot)
 Puerto 8082  → MS-Inventario (Spring Boot)
 Puerto 8083  → MS-Ventas (Spring Boot)
 Puerto 3307  → MySQL (Base de datos)
 ```
+
+### 🌐 API Gateway
+
+El **API Gateway** actúa como punto de entrada único para todas las peticiones:
+
+```
+Frontend → API Gateway (8080) → Microservicios
+              ├── /api/medicamentos/** → MS-Catálogo (8081)
+              ├── /api/sucursales/**   → MS-Inventario (8082)
+              ├── /api/inventarios/**  → MS-Inventario (8082)
+              └── /api/ventas/**       → MS-Ventas (8083)
+```
+
+**Beneficios del API Gateway:**
+- ✅ Punto de entrada único (simplifica configuración del frontend)
+- ✅ Balanceo de carga automático
+- ✅ CORS centralizado
+- ✅ Monitoreo con Actuator (`http://localhost:8080/actuator/health`)
+
+
 
 ---
 

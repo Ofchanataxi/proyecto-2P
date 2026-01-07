@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-const VENTAS_HOST = import.meta.env.VITE_VENTAS_HOST || 'http://localhost';
+// Apunta al API Gateway (puerto 8080) que redirige a ms-ventas internamente
+const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
 
 const ventasAPI = axios.create({
-  baseURL: `${VENTAS_HOST}:8083/api/ventas`,
+  baseURL: `${API_GATEWAY}/api/ventas`,
   headers: {
     'Content-Type': 'application/json',
   },
