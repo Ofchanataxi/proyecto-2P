@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: gateway
+server:
+  port: 8080
+  cloud:
+    routes:
+      - id: c-books
+        uri: http://localhost:8001
+        predicates:
+          - Path=/api/libros/**
+
+      - id: c-authors
+        uri: http://localhost:8002
+        predicates:
+          - Path=/api/autores/**
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    otg.springframework.web.reactive: DEBUG
+    reactor.netty.http.client: DEBUG
