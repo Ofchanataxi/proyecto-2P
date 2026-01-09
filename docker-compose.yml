@@ -80,17 +80,11 @@ services:
         condition: service_started
     restart: unless-stopped
 
-  # --- Frontend React ---
-  ms-frontend:
-    build: ./ms-frontend
-    container_name: ms-frontend
+  ms-gateway:
+    build: ./gateway  # Asegúrate de que la carpeta se llame "gateway"
+    container_name: ms-gateway
     ports:
-      - "3000:3000"
-    environment:
-      - VITE_CATALOGO_HOST=http://localhost
-      - VITE_INVENTARIO_HOST=http://localhost
-      - VITE_VENTAS_HOST=http://localhost
-      - NODE_ENV=production
+      - "8080:8080"
     depends_on:
       ms-catalogo:
         condition: service_started
@@ -98,6 +92,21 @@ services:
         condition: service_started
       ms-ventas:
         condition: service_started
+    networks:
+      - default
+
+  # --- Frontend React Actualizado ---
+  ms-frontend:
+    build: ./ms-frontend
+    container_name: ms-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # Ahora apuntamos SOLO al Gateway en el puerto 8080
+      - VITE_API_BASE_URL=http://localhost:8080
+      - NODE_ENV=production
+    depends_on:
+      - ms-gateway
     restart: unless-stopped
 
 volumes:

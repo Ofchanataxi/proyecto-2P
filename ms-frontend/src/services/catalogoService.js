@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-const CATALOGO_HOST = import.meta.env.VITE_CATALOGO_HOST || 'http://localhost';
+// Usamos la variable base (Gateway) o fallback a localhost:8080
+const GATEWAY_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const catalogoAPI = axios.create({
-  baseURL: `${CATALOGO_HOST}:8081/api/medicamentos`,
+  baseURL: `${GATEWAY_URL}/api/medicamentos`, // NOTA: Ya no incluye puerto 8081
   headers: {
     'Content-Type': 'application/json',
   },

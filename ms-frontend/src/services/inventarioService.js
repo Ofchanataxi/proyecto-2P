@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const INVENTARIO_HOST = import.meta.env.VITE_INVENTARIO_HOST || 'http://localhost';
+const GATEWAY_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const inventarioAPI = axios.create({
-  baseURL: `${INVENTARIO_HOST}:8082/api`,
+  baseURL: `${GATEWAY_URL}/api`, // NOTA: Ya no incluye puerto 8082. Apunta a la raíz del API en el Gateway.
   headers: {
     'Content-Type': 'application/json',
   },

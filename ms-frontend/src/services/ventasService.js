@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const VENTAS_HOST = import.meta.env.VITE_VENTAS_HOST || 'http://localhost';
+const GATEWAY_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const ventasAPI = axios.create({
-  baseURL: `${VENTAS_HOST}:8083/api/ventas`,
+  baseURL: `${GATEWAY_URL}/api/ventas`, // NOTA: Ya no incluye puerto 8083
   headers: {
     'Content-Type': 'application/json',
   },
