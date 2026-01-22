@@ -1,78 +1,53 @@
-import axios from 'axios';
+import { User } from "oidc-client-ts";
 
-// Apunta al API Gateway (puerto 8080) que redirige a ms-catalogo internamente
-const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
+// URL base apuntando al Gateway
+const API_URL = (import.meta.env.VITE_API_GATEWAY_HOST || 'http://localhost:8080') + '/api/medicamentos';
 
-const catalogoAPI = axios.create({
-  baseURL: `${API_GATEWAY}/api/medicamentos`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Helper para obtener el token
+function getAuthHeader() {
+    const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:9000:farmacia-frontend");
+    if (!oidcStorage) return {};
+    const user = User.fromStorageString(oidcStorage);
+    return { 
+        'Authorization': `Bearer ${user.access_token}`,
+        'Content-Type': 'application/json'
+    };
+}
 
-export const catalogoService = {
-  // Obtener todos los medicamentos
-  getAllMedicamentos: async () => {
-    const response = await catalogoAPI.get('');
-    return response.data;
-  },
-
-  // Obtener un medicamento por ID
-  getMedicamentoById: async (id) => {
-    const response = await catalogoAPI.get(`/${id}`);
-    return response.data;
-  },
-
-  // Crear un nuevo medicamento
-  createMedicamento: async (medicamento) => {
-    const response = await catalogoAPI.post('', medicamento);
-    return response.data;
-  },
-
-  // Actualizar un medicamento
-  updateMedicamento: async (id, medicamento) => {
-    const response = await catalogoAPI.put(`/${id}`, medicamento);
-    return response.data;
-  },
-
-  // Eliminar un medicamento
-  deleteMedicamento: async (id) => {
-    const response = await catalogoAPI.delete(`/${id}`);
-    return response.data;
-  },
-
-  // Buscar medicamentos por nombre (normaliza tildes y espacios)
-  searchMedicamentos: async (query) => {
-    const q = (query || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    if (!q) {
-      const response = await catalogoAPI.get('');
-      return response.data;
-    }
-    const response = await catalogoAPI.get('');
-    const medicamentos = response.data || [];
-    const normalize = (s) => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    return medicamentos.filter(med =>
-      normalize(med.nombre).includes(q) ||
-      normalize(med.laboratorio).includes(q)
-    );
-  },
-
-  // Obtener medicamentos en oferta
-  getMedicamentosEnOferta: async () => {
-    const response = await catalogoAPI.get('');
-    const medicamentos = response.data || [];
-
-    return medicamentos.filter(med => {
-      const precioOferta = med.precioUnitario < 5;
-      const normalize = (s) => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      const nombreOferta = normalize(med.nombre).includes('oferta') ||
-        normalize(med.nombre).includes('descuento') ||
-        normalize(med.nombre).includes('promocion');
-      const categoriaOferta = normalize(med.categoria || '').includes('oferta');
-
-      return precioOferta || nombreOferta || categoriaOferta;
+export const getMedicamentos = async () => {
+    const response = await fetch(API_URL, {
+        method: 'GET',
+        headers: getAuthHeader()
     });
-  },
+    if (!response.ok) throw new Error('Error al obtener medicamentos');
+    return await response.json();
 };
 
-export default catalogoService;
+export const getMedicamentoById = async (codigo) => {
+    const response = await fetch(`${API_URL}/${codigo}`, {
+        method: 'GET',
+        headers: getAuthHeader()
+    });
+    if (!response.ok) throw new Error('Error al obtener el medicamento');
+    return await response.json();
+};
+
+export const createMedicamento = async (medicamento) => {
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: getAuthHeader(),
+        body: JSON.stringify(medicamento)
+    });
+    if (!response.ok) throw new Error('Error al crear medicamento');
+    return await response.json();
+};
+
+export const updateMedicamento = async (codigo, medicamento) => {
+    const response = await fetch(`${API_URL}/${codigo}`, {
+        method: 'PUT',
+        headers: getAuthHeader(),
+        body: JSON.stringify(medicamento)
+    });
+    if (!response.ok) throw new Error('Error al actualizar medicamento');
+    return await response.json();
+};
