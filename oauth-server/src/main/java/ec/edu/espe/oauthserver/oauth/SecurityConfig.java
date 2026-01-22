@@ -96,28 +96,27 @@ public class SecurityConfig {
 
         return new InMemoryUserDetailsManager(userDetails);
     }
-
     @Bean
-public RegisteredClientRepository registeredClientRepository() {
-    RegisteredClient reactClient = RegisteredClient.withId(UUID.randomUUID().toString())
-            .clientId("farmacia-frontend") // ID que usará React
-            .clientSecret("{noop}") // Public clients (SPA) no usan secret, pero Spring lo pide.
-            .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Importante para SPAs sin backend
-            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .redirectUri("http://localhost:3000") // A dónde vuelve después del login
-            .redirectUri("http://localhost:3000/callback") // Por si usas un path específico
-            .scope(OidcScopes.OPENID)
-            .scope(OidcScopes.PROFILE)
-            .scope("read")
-            .scope("write")
-            .clientSettings(ClientSettings.builder()
-                .requireAuthorizationConsent(false) // Para que no pregunte "¿Deseas dar permiso?" siempre
-                .requireProofKey(true) // Habilita PKCE (seguridad estándar para React)
-                .build())
-            .build();
+    public RegisteredClientRepository registeredClientRepositoryOld() {
+        RegisteredClient reactClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("farmacia-frontend") // ID que usará React
+                .clientSecret("{noop}") // Public clients (SPA) no usan secret, pero Spring lo pide.
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Importante para SPAs sin backend
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("http://localhost:3000") // A dónde vuelve después del login
+                .redirectUri("http://localhost:3000/callback") // Por si usas un path específico
+                .scope(OidcScopes.OPENID)
+                .scope(OidcScopes.PROFILE)
+                .scope("read")
+                .scope("write")
+                .clientSettings(ClientSettings.builder()
+                        .requireAuthorizationConsent(false) // Para que no pregunte "¿Deseas dar permiso?" siempre
+                        .requireProofKey(true) // Habilita PKCE (seguridad estándar para React)
+                        .build())
+                .build();
 
-    return new InMemoryRegisteredClientRepository(reactClient);
-}
+        return new InMemoryRegisteredClientRepository(reactClient);
+    }
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
