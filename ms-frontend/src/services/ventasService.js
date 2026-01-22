@@ -1,43 +1,25 @@
-import axios from 'axios';
+import { User } from "oidc-client-ts";
 
-// Apunta al API Gateway (puerto 8080) que redirige a ms-ventas internamente
-const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
+function getUser() {
+    // La clave por defecto es oidc.user:<authority>:<client_id>
+    const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:9000:farmacia-frontend");
+    if (!oidcStorage) return null;
+    return User.fromStorageString(oidcStorage);
+}
 
-const ventasAPI = axios.create({
-  baseURL: `${API_GATEWAY}/api/ventas`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const API_URL = import.meta.env.VITE_API_GATEWAY_HOST + '/api/ventas';
 
-export const ventasService = {
-  // Crear una nueva venta
-  createVenta: async (venta) => {
-    const response = await ventasAPI.post('', venta);
-    return response.data;
-  },
+export const createVenta = async (venta) => {
+    const user = getUser();
+    const token = user?.access_token;
 
-  // Obtener todas las ventas (si se implementa en el backend)
-  getAllVentas: async () => {
-    try {
-      const response = await ventasAPI.get('');
-      return response.data;
-    } catch (error) {
-      console.error('Endpoint no disponible:', error);
-      return [];
-    }
-  },
-
-  // Obtener venta por ID (si se implementa en el backend)
-  getVentaById: async (id) => {
-    try {
-      const response = await ventasAPI.get(`/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('Endpoint no disponible:', error);
-      return null;
-    }
-  },
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // <--- Token aquí
+        },
+        body: JSON.stringify(venta)
+    });
+    return response.json();
 };
-
-export default ventasService;

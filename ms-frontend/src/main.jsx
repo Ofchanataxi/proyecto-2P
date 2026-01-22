@@ -1,10 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import { AuthProvider } from "react-oidc-context";
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+const oidcConfig = {
+  authority: "http://localhost:9000", // Navegador ve localhost
+  client_id: "farmacia-frontend",
+  redirect_uri: "http://localhost:3000",
+  response_type: "code",
+  scope: "openid profile read write",
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <AuthProvider {...oidcConfig}>
     <App />
-  </StrictMode>,
+  </AuthProvider>
 )

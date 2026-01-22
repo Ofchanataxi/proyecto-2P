@@ -1,34 +1,25 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { CartProvider } from './context/CartContext';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import Cart from './pages/Cart';
-import Admin from './pages/Admin';
-import Sucursales from './pages/Sucursales';
-import './App.css';
+import { useAuth } from "react-oidc-context";
 
 function App() {
+  const auth = useAuth();
+
+  if (auth.isLoading) return <div>Cargando...</div>;
+
+  if (!auth.isAuthenticated) {
+    return (
+      <div>
+        <h1>Bienvenido a Farmacia Online</h1>
+        <button onClick={() => auth.signinRedirect()}>Iniciar Sesión</button>
+      </div>
+    );
+  }
+
   return (
-    <CartProvider>
-      <Router>
-        <div className="app">
-          <Header />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/categorias/:categoria" element={<Home />} />
-              <Route path="/carrito" element={<Cart />} />
-              <Route path="/sucursales" element={<Sucursales />} />
-              <Route path="/admin" element={<Admin />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </CartProvider>
+    <div>
+       {/* Tu Router o componentes protegidos van aquí */}
+       <h1>Hola {auth.user?.profile.sub}</h1>
+       <button onClick={() => auth.removeUser()}>Salir</button>
+       {/* Resto de tu app... */}
+    </div>
   );
 }
-
-export default App;
