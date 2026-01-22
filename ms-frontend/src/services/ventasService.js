@@ -1,52 +1,43 @@
-import { User } from "oidc-client-ts";
+import axios from 'axios';
+import { User } from 'oidc-client-ts';
 
-const API_URL = (import.meta.env.VITE_API_GATEWAY_HOST || 'http://localhost:8080') + '/api/ventas';
+const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
 
-function getAuthHeader() {
-    const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:9000:farmacia-frontend");
-    if (!oidcStorage) return {};
-    const user = User.fromStorageString(oidcStorage);
-    return { 
-        'Authorization': `Bearer ${user.access_token}`,
-        'Content-Type': 'application/json'
-    };
-}
-
-export const getVentas = async () => {
-    const response = await fetch(API_URL, {
-        headers: getAuthHeader()
-    });
-    if (!response.ok) throw new Error('Error al obtener ventas');
-    return await response.json();
+// Función auxiliar para obtener headers con Token
+const getAuthHeaders = () => {
+  const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:9000:farmacia-frontend");
+  if (!oidcStorage) return {};
+  const user = User.fromStorageString(oidcStorage);
+  return {
+    'Authorization': `Bearer ${user.access_token}`,
+    'Content-Type': 'application/json'
+  };
 };
 
-export const getVentaById = async (id) => {
-    const response = await fetch(`${API_URL}/${id}`, {
-        headers: getAuthHeader()
-    });
-    if (!response.ok) throw new Error('Error al obtener la venta');
-    return await response.json();
-};
+const ventasAPI = axios.create({
+  baseURL: `${API_GATEWAY}/api/ventas`,
+});
 
-export const createVenta = async (venta) => {
-    /* Estructura esperada de 'venta':
-       {
-          cedulaCliente: "17...",
-          nombreCliente: "Juan",
-          detalleVentas: [
-             { codigoMedicamento: "M01", cantidad: 2, codigoSucursal: "S01" }
-          ]
-       }
-    */
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: getAuthHeader(),
-        body: JSON.stringify(venta)
-    });
+// Interceptor para inyectar token en cada petición
+ventasAPI.interceptors.request.use(config => {
+  const headers = getAuthHeaders();
+  if (headers.Authorization) {
+    config.headers.Authorization = headers.Authorization;
+  }
+  return config;
+});
 
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al procesar la venta');
+export const ventasService = {
+  createVenta: async (ventaData) => {
+    try {
+      // El backend espera un objeto Venta. Asegúrate de que ventaData coincida con tu DTO/Entidad
+      const response = await ventasAPI.post('', ventaData);
+      return response.data;
+    } catch (error) {
+      console.error('Error en createVenta:', error);
+      throw error;
     }
-    return await response.json();
+  }
 };
+
+export default ventasService;

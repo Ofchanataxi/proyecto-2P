@@ -6,15 +6,25 @@ spring:
     name: gateway
   cloud:
     gateway:
-      # 1. Configuración de CORS (Permite que React se conecte)
+      # 1. Configuración Global de CORS (La que manda)
       globalcors:
         cors-configurations:
           '[/**]':
             allowedOrigins: "http://localhost:3000"
-            allowedMethods: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
             allowedHeaders: "*"
+            allowCredentials: true
 
-      # 2. Rutas de los Microservicios
+      # 2. FILTRO MÁGICO: Elimina duplicados si el microservicio también envía CORS
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+
+      # 3. Rutas
       routes:
         - id: ms-catalogo
           uri: ${CATALOGO_URI}

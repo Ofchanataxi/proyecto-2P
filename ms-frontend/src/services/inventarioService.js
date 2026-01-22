@@ -1,54 +1,69 @@
-import { User } from "oidc-client-ts";
+import axios from 'axios';
+import { User } from 'oidc-client-ts';
 
-const BASE_URL = import.meta.env.VITE_API_GATEWAY_HOST || 'http://localhost:8080';
-const SUCURSALES_URL = `${BASE_URL}/api/sucursales`;
-const INVENTARIOS_URL = `${BASE_URL}/api/inventarios`;
+const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
 
-function getAuthHeader() {
-    const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:9000:farmacia-frontend");
-    if (!oidcStorage) return {};
-    const user = User.fromStorageString(oidcStorage);
-    return { 
-        'Authorization': `Bearer ${user.access_token}`,
-        'Content-Type': 'application/json'
-    };
-}
-
-// --- SUCURSALES ---
-export const getSucursales = async () => {
-    const response = await fetch(SUCURSALES_URL, {
-        headers: getAuthHeader()
-    });
-    if (!response.ok) throw new Error('Error al obtener sucursales');
-    return await response.json();
+const getAuthHeaders = () => {
+  const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:9000:farmacia-frontend");
+  if (!oidcStorage) return {};
+  const user = User.fromStorageString(oidcStorage);
+  return {
+    'Authorization': `Bearer ${user.access_token}`,
+    'Content-Type': 'application/json'
+  };
 };
 
-export const createSucursal = async (sucursal) => {
-    const response = await fetch(SUCURSALES_URL, {
-        method: 'POST',
-        headers: getAuthHeader(),
-        body: JSON.stringify(sucursal)
-    });
-    if (!response.ok) throw new Error('Error al crear sucursal');
-    return await response.json();
+const inventarioAPI = axios.create({
+  baseURL: `${API_GATEWAY}/api`,
+});
+
+inventarioAPI.interceptors.request.use(config => {
+  const headers = getAuthHeaders();
+  if (headers.Authorization) {
+    config.headers.Authorization = headers.Authorization;
+  }
+  return config;
+});
+
+export const inventarioService = {
+  // Sucursales
+  getAllSucursales: async () => {
+    const response = await inventarioAPI.get('/sucursales');
+    return response.data;
+  },
+  
+  getSucursalById: async (id) => {
+    const response = await inventarioAPI.get(`/sucursales/${id}`);
+    return response.data;
+  },
+
+  // Inventarios
+  getAllInventarios: async () => {
+    const response = await inventarioAPI.get('/inventarios');
+    return response.data;
+  },
+
+  getInventariosPorSucursal: async (sucursalId) => {
+    const response = await inventarioAPI.get(`/inventarios/sucursal/${sucursalId}`);
+    return response.data;
+  },
+
+  // Esta función es la que usa InventarioAdmin.jsx
+  // Debe coincidir con lo que espera el Backend: { sucursal: {id: 1}, ... }
+  createInventario: async (inventarioData) => {
+    const response = await inventarioAPI.post('/inventarios', inventarioData);
+    return response.data;
+  },
+
+  // Alias para compatibilidad si usabas 'agregarStock'
+  agregarStock: async (payload) => {
+    return await inventarioAPI.post('/inventarios', payload);
+  },
+
+  updateInventario: async (id, cantidad) => {
+    const response = await inventarioAPI.put(`/inventarios/${id}`, { cantidad });
+    return response.data;
+  }
 };
 
-// --- INVENTARIOS ---
-export const getInventarioBySucursal = async (codigoSucursal) => {
-    // Ajusta la URL según cómo definiste tu endpoint en Java (ej. /sucursal/{id})
-    const response = await fetch(`${INVENTARIOS_URL}/sucursal/${codigoSucursal}`, {
-        headers: getAuthHeader()
-    });
-    if (!response.ok) throw new Error('Error al obtener inventario');
-    return await response.json();
-};
-
-export const agregarStock = async (stockRequest) => {
-    const response = await fetch(INVENTARIOS_URL, {
-        method: 'POST',
-        headers: getAuthHeader(),
-        body: JSON.stringify(stockRequest)
-    });
-    if (!response.ok) throw new Error('Error al agregar stock');
-    return await response.json();
-};
+export default inventarioService;
