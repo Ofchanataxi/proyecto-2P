@@ -98,24 +98,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository() {
-        RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("autor-ms")
-                .clientSecret("{noop}12345")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://127.0.0.1:8002/login/oauth2/code/autor-ms")
-                .redirectUri("http://localhost:8002/login/oauth2/code/autor-ms")
-                .postLogoutRedirectUri("http://127.0.0.1:8002/logout")
-                .scope(OidcScopes.OPENID)
-                .scope(OidcScopes.PROFILE)
-                .scope("read")
-                .scope("write")
-                .build();
+public RegisteredClientRepository registeredClientRepository() {
+    RegisteredClient reactClient = RegisteredClient.withId(UUID.randomUUID().toString())
+            .clientId("farmacia-frontend") // ID que usará React
+            .clientSecret("{noop}") // Public clients (SPA) no usan secret, pero Spring lo pide.
+            .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Importante para SPAs sin backend
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .redirectUri("http://localhost:3000") // A dónde vuelve después del login
+            .redirectUri("http://localhost:3000/callback") // Por si usas un path específico
+            .scope(OidcScopes.OPENID)
+            .scope(OidcScopes.PROFILE)
+            .scope("read")
+            .scope("write")
+            .clientSettings(ClientSettings.builder()
+                .requireAuthorizationConsent(false) // Para que no pregunte "¿Deseas dar permiso?" siempre
+                .requireProofKey(true) // Habilita PKCE (seguridad estándar para React)
+                .build())
+            .build();
 
-        return new InMemoryRegisteredClientRepository(oidcClient);
-    }
+    return new InMemoryRegisteredClientRepository(reactClient);
+}
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {

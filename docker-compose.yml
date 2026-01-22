@@ -127,10 +127,12 @@ services:
 
   # --- Servidor OAuth2 ---
   oauth-server:
-    build: ../oauth-server  # Ajusta esta ruta a donde tengas tu carpeta oauth-server
+    build: ./oauth-server
     container_name: oauth-server
     ports:
       - "9000:9000"
+    networks:
+      - default
     environment:
       - SERVER_PORT=9000
     restart: unless-stopped
