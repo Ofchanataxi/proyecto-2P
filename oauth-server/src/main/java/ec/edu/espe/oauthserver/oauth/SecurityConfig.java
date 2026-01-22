@@ -5,6 +5,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import ec.edu.espe.oauthserver.repositories.UsuarioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -13,9 +14,10 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -43,14 +45,23 @@ import java.util.UUID;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 1. USUARIO EN MEMORIA (JUAN / 12345)
+    // 1. GESTOR DE USUARIOS DESDE BASE DE DATOS
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.withUsername("juan")
-                .password("{noop}12345") // {noop} significa sin encriptar
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
+    public UserDetailsService userDetailsService(UsuarioRepository usuarioRepository) {
+        return username -> usuarioRepository.findByUsername(username)
+                .map(usuario -> User.withUsername(usuario.getUsername())
+                        // La contraseña en DB debe tener prefijo, ej: {noop}12345 o {bcrypt}$2a$10...
+                        .password(usuario.getPassword()) 
+                        .roles(usuario.getRole())
+                        .disabled(!usuario.isEnabled())
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+    }
+
+    // Codificador de contraseñas inteligente (Soporta {noop}, {bcrypt}, etc.)
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     // 2. CONFIGURACIÓN CORS (FRONTEND REACT)
@@ -72,7 +83,7 @@ public class SecurityConfig {
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-            .oidc(Customizer.withDefaults());
+            .oidc(Customizer.withDefaults()); // Enable OpenID Connect 1.0
         
         http.exceptionHandling((exceptions) -> exceptions
                 .defaultAuthenticationEntryPointFor(
@@ -83,7 +94,7 @@ public class SecurityConfig {
             .oauth2ResourceServer((resourceServer) -> resourceServer
                 .jwt(Customizer.withDefaults()));
 
-        // Activar CORS
+        // ACTIVAR CORS AQUÍ TAMBIÉN
         http.cors(Customizer.withDefaults());
 
         return http.build();
@@ -96,7 +107,7 @@ public class SecurityConfig {
             .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
-            // Activar CORS y Form Login
+            // ACTIVAR CORS AQUÍ
             .cors(Customizer.withDefaults())
             .formLogin(Customizer.withDefaults());
 
@@ -112,15 +123,15 @@ public class SecurityConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://localhost:3000")
-                .redirectUri("http://localhost:3000/callback")
+                .redirectUri("http://localhost:3000/callback") 
                 .postLogoutRedirectUri("http://localhost:3000")
                 .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
                 .scope("read")
                 .scope("write")
                 .clientSettings(ClientSettings.builder()
-                    .requireAuthorizationConsent(false)
-                    .requireProofKey(true)
+                    .requireAuthorizationConsent(false) 
+                    .requireProofKey(true) 
                     .build())
                 .build();
 

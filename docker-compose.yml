@@ -1,5 +1,5 @@
 services:
-  # --- Base de Datos Compartida ---
+  # --- Base de Datos Compartida (MySQL) ---
   mysql-db:
     image: mysql:8.0
     container_name: mysql-farmacia
@@ -16,6 +16,20 @@ services:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       timeout: 20s
       retries: 10
+
+  # --- Base de Datos OAuth (PostgreSQL) ---
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: postgres-oauth
+    restart: always
+    environment:
+      POSTGRES_DB: db_oauth
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   # --- Microservicio Catálogo ---
   ms-catalogo:
@@ -113,12 +127,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # Opción 1: Usar el Gateway (recomendado)
       - VITE_API_GATEWAY_HOST=http://localhost:8080
-      # Opción 2: Acceso directo a microservicios (backup)
-      - VITE_CATALOGO_HOST=http://localhost
-      - VITE_INVENTARIO_HOST=http://localhost
-      - VITE_VENTAS_HOST=http://localhost
       - NODE_ENV=production
     depends_on:
       gateway:
@@ -131,11 +140,16 @@ services:
     container_name: oauth-server
     ports:
       - "9000:9000"
-    networks:
-      - default
     environment:
       - SERVER_PORT=9000
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/db_oauth
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+    depends_on:
+      - postgres-db
     restart: unless-stopped
 
+# --- VOLÚMENES (AQUÍ ESTABA EL ERROR) ---
 volumes:
   mysql_data:
+  postgres_data:  # <--- FALTABA ESTO

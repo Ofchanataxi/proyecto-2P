@@ -28,7 +28,8 @@ catalogoAPI.interceptors.request.use(config => {
 });
 
 export const catalogoService = {
-  getAllMedicamentos: async () => {
+  // Cambiamos el nombre para que Home.jsx lo encuentre
+  getMedicamentos: async () => {
     const response = await catalogoAPI.get('');
     return response.data;
   },

@@ -8,88 +8,44 @@ import './Cart.css';
 const Cart = () => {
   const { cart, removeFromCart, clearCart, getTotal, sucursalId } = useCart();
   const navigate = useNavigate();
-  const [sucursales, setSucursales] = useState([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  const [cliente, setCliente] = useState({
-    cedula: '',
-    nombre: '',
-    email: '',
-    telefono: ''
-  });
-
-  useEffect(() => {
-    inventarioService.getAllSucursales().then(setSucursales).catch(console.error);
-  }, []);
+  const [cliente, setCliente] = useState({ cedula: '', nombre: '', email: '', telefono: '' });
 
   const handleCheckout = async (e) => {
     e.preventDefault();
-    if (!sucursalId) {
-      alert('⚠️ Por favor selecciona una sucursal en el Inicio.');
-      return;
-    }
-    
-    setIsProcessing(true);
+    if (!sucursalId) return alert('Selecciona sucursal en el Inicio');
+
     try {
-      // ESTRUCTURA EXACTA PARA TU VentaController
-      const ventaPayload = {
-        cliente: {
-            cedula: cliente.cedula,
-            nombre: cliente.nombre,
-            email: cliente.email,
-            telefono: cliente.telefono
-        },
+      const payload = {
+        cliente: { ...cliente },
         sucursalId: parseInt(sucursalId),
         detalles: cart.map(item => ({
-            medicamentoId: item.id, // Asegúrate que en CartContext guardas 'id'
-            cantidad: item.cantidad,
-            precioUnitario: item.precioUnitario
+          medicamentoId: item.id,
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario
         })),
         total: getTotal()
       };
-
-      await ventasService.createVenta(ventaPayload);
-      alert('✅ ¡Compra exitosa!');
+      await ventasService.createVenta(payload);
+      alert('✅ Compra exitosa');
       clearCart();
       navigate('/');
-    } catch (error) {
-      console.error(error);
-      alert('❌ Error en la compra. Revisa la consola.');
-    } finally {
-      setIsProcessing(false);
+    } catch (err) {
+      alert('❌ Error al procesar la compra');
     }
   };
 
-  const getSucursalName = () => {
-    const s = sucursales.find(x => x.id === parseInt(sucursalId));
-    return s ? s.nombre : 'No seleccionada';
-  };
-
-  if (cart.length === 0) return <div className="cart-page"><h2>🛒 Carrito Vacío</h2><button onClick={() => navigate('/')}>Volver</button></div>;
+  if (cart.length === 0) return <div><h2>Carrito Vacío</h2><button onClick={() => navigate('/')}>Ir al inicio</button></div>;
 
   return (
-    <div className="cart-page">
-      <div className="container">
-        <h1>🛒 Finalizar Compra</h1>
-        <div className="cart-summary">
-            <h3>📍 Sucursal: {getSucursalName()}</h3>
-            
-            <form onSubmit={handleCheckout} className="client-form">
-                <input placeholder="Cédula" value={cliente.cedula} onChange={e => setCliente({...cliente, cedula: e.target.value})} required maxLength="10"/>
-                <input placeholder="Nombre" value={cliente.nombre} onChange={e => setCliente({...cliente, nombre: e.target.value})} required />
-                <input placeholder="Email" value={cliente.email} onChange={e => setCliente({...cliente, email: e.target.value})} required />
-                <input placeholder="Teléfono" value={cliente.telefono} onChange={e => setCliente({...cliente, telefono: e.target.value})} required />
-                
-                <div className="total-row">
-                    <h3>Total: ${getTotal().toFixed(2)}</h3>
-                </div>
-                
-                <button type="submit" className="checkout-btn" disabled={isProcessing}>
-                    {isProcessing ? 'Procesando...' : 'Confirmar Compra'}
-                </button>
-            </form>
-        </div>
-      </div>
+    <div className="container">
+      <h1>🛒 Tu Carrito</h1>
+      <form onSubmit={handleCheckout}>
+        <input placeholder="Cédula" onChange={e => setCliente({...cliente, cedula: e.target.value})} required />
+        <input placeholder="Nombre" onChange={e => setCliente({...cliente, nombre: e.target.value})} required />
+        <input placeholder="Email" onChange={e => setCliente({...cliente, email: e.target.value})} required />
+        <div className="total">Total: ${getTotal().toFixed(2)}</div>
+        <button type="submit">Finalizar Compra</button>
+      </form>
     </div>
   );
 };

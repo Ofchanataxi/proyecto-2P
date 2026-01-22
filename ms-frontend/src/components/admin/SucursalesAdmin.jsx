@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import * as inventarioService from '../../services/inventarioService'; // <--- OJO AQUÍ
+// Importación nombrada (debe coincidir con el 'export const' de arriba)
+import { inventarioService } from '../../services/inventarioService';
 import './AdminTables.css';
 
 const SucursalesAdmin = () => {

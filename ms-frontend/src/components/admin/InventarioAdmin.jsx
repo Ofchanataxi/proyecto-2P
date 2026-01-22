@@ -6,87 +6,50 @@ import './AdminTables.css';
 const InventarioAdmin = () => {
   const [sucursales, setSucursales] = useState([]);
   const [medicamentos, setMedicamentos] = useState([]);
-  const [formData, setFormData] = useState({ codigoSucursal: '', codigoMedicamento: '', cantidad: '' });
+  const [formData, setFormData] = useState({ sucursalId: '', medicamentoId: '', cantidad: '' });
 
   useEffect(() => {
-    loadData();
+    Promise.all([
+      inventarioService.getSucursales(),
+      catalogoService.getMedicamentos()
+    ]).then(([sucs, meds]) => {
+      setSucursales(sucs || []);
+      setMedicamentos(meds || []);
+    }).catch(console.error);
   }, []);
-
-  const loadData = async () => {
-      try {
-        const [sucs, meds] = await Promise.all([
-            inventarioService.getAllSucursales(),
-            catalogoService.getAllMedicamentos()
-        ]);
-        setSucursales(sucs || []);
-        setMedicamentos(meds || []);
-      } catch (error) {
-          console.error("Error cargando datos:", error);
-      }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.codigoSucursal || !formData.codigoMedicamento) {
-        alert("⚠️ Selecciona sucursal y medicamento.");
-        return;
-    }
-    const cant = parseInt(formData.cantidad);
-    if (isNaN(cant) || cant <= 0) {
-        alert("⚠️ Cantidad inválida.");
-        return;
-    }
+    if (!formData.sucursalId || !formData.medicamentoId) return alert("Selecciona campos");
 
     try {
-        // ESTRUCTURA CORRECTA PARA TU BACKEND (Entity Inventario)
-        const payload = {
-            sucursal: { id: parseInt(formData.codigoSucursal) }, // Objeto anidado
-            medicamentoId: parseInt(formData.codigoMedicamento),
-            cantidad: cant
-        };
-
-        await inventarioService.createInventario(payload);
-        alert('✅ Stock agregado correctamente');
-        setFormData({ ...formData, cantidad: '' }); 
+      const payload = {
+        sucursal: { id: parseInt(formData.sucursalId) },
+        medicamentoId: parseInt(formData.medicamentoId),
+        cantidad: parseInt(formData.cantidad)
+      };
+      await inventarioService.createInventario(payload);
+      alert('✅ Stock asignado');
+      setFormData({ ...formData, cantidad: '' });
     } catch (err) {
-        console.error(err);
-        alert('❌ Error al agregar. Verifica que no esté duplicado.');
+      alert('❌ Error: El medicamento debe existir en el catálogo y la combinación ser única.');
     }
   };
 
   return (
     <div className="admin-section">
-      <h2>📦 Asignar Inventario</h2>
+      <h3>📦 Asignar Stock</h3>
       <form onSubmit={handleSubmit} className="admin-form">
-        <div className="form-grid">
-            <select 
-                value={formData.codigoSucursal}
-                onChange={e => setFormData({...formData, codigoSucursal: e.target.value})} 
-                required
-            >
-                <option value="">-- Sucursal --</option>
-                {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-            </select>
-        
-            <select 
-                value={formData.codigoMedicamento}
-                onChange={e => setFormData({...formData, codigoMedicamento: e.target.value})} 
-                required
-            >
-                <option value="">-- Medicamento --</option>
-                {medicamentos.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-            </select>
-
-            <input 
-                type="number" 
-                placeholder="Cantidad" 
-                value={formData.cantidad}
-                onChange={e => setFormData({...formData, cantidad: e.target.value})} 
-                required 
-            />
-        </div>
-        <button type="submit" className="btn-submit" style={{marginTop: '10px'}}>Agregar Stock</button>
+        <select value={formData.sucursalId} onChange={e => setFormData({...formData, sucursalId: e.target.value})} required>
+          <option value="">-- Sucursal --</option>
+          {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+        </select>
+        <select value={formData.medicamentoId} onChange={e => setFormData({...formData, medicamentoId: e.target.value})} required>
+          <option value="">-- Medicamento --</option>
+          {medicamentos.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+        </select>
+        <input type="number" placeholder="Cantidad" value={formData.cantidad} onChange={e => setFormData({...formData, cantidad: e.target.value})} required />
+        <button type="submit" className="btn-submit">Guardar</button>
       </form>
     </div>
   );
