@@ -1,0 +1,238 @@
+.medic-home {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.medic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  border-radius: 15px;
+  color: white;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.header-content .subtitle {
+  margin: 5px 0 0;
+  opacity: 0.9;
+}
+
+.cart-button-medic {
+  background: white;
+  color: #48bb78;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cart-button-medic:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.filters-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.sucursal-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sucursal-selector label {
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+.sucursal-selector select {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.sucursal-selector select:focus {
+  outline: none;
+  border-color: #48bb78;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #48bb78;
+}
+
+.categories-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.category-btn {
+  padding: 10px 20px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.category-btn:hover {
+  border-color: #48bb78;
+  color: #48bb78;
+}
+
+.category-btn.active {
+  background: #48bb78;
+  color: white;
+  border-color: #48bb78;
+}
+
+.medicamentos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.medicamento-card-medic {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.medicamento-card-medic:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header-medic {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.card-header-medic h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.categoria-badge {
+  background: #48bb78;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.descripcion {
+  color: #666;
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+.card-footer-medic {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.precio {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #48bb78;
+}
+
+.add-button {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.add-button:hover:not(:disabled) {
+  background: #38a169;
+  transform: scale(1.05);
+}
+
+.add-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.loading-medic {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 50px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .medic-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .filters-section {
+    grid-template-columns: 1fr;
+  }
+
+  .categories-bar {
+    justify-content: start;
+  }
+
+  .medicamentos-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,24 +1,44 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Apunta al API Gateway (puerto 8080) que redirige a ms-inventario internamente
-const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
+const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || "http://localhost:8080";
 
 const inventarioAPI = axios.create({
   baseURL: `${API_GATEWAY}/api`,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 export const inventarioService = {
   // --- INVENTARIOS ---
 
-  // Crear inventario
-  createInventario: async (inventario) => {
-    const response = await inventarioAPI.post('/inventarios', inventario);
+  // Obtener todos los inventarios
+  getAllInventarios: async () => {
+    const response = await inventarioAPI.get("/inventarios");
     return response.data;
   },
 
+  // Obtener inventarios por sucursal
+  getInventariosPorSucursal: async (sucursalId) => {
+    const response = await inventarioAPI.get(
+      `/inventarios/sucursal/${sucursalId}`,
+    );
+    return response.data;
+  },
+
+  // Crear inventario
+  createInventario: async (inventario) => {
+    const response = await inventarioAPI.post("/inventarios", inventario);
+    return response.data;
+  },
+  // Actualizar inventario (reemplazar cantidad)
+  updateInventario: async (id, cantidad) => {
+    const response = await inventarioAPI.put(`/inventarios/${id}`, {
+      cantidad,
+    });
+    return response.data;
+  },
   // Obtener inventario por ID
   getInventarioById: async (id) => {
     const response = await inventarioAPI.get(`/inventarios/${id}`);
@@ -27,13 +47,18 @@ export const inventarioService = {
 
   // Verificar disponibilidad
   verificarDisponibilidad: async (sucursalId, medicamentoId) => {
-    const response = await inventarioAPI.get(`/inventarios/verificar/${sucursalId}/${medicamentoId}`);
+    const response = await inventarioAPI.get(
+      `/inventarios/verificar/${sucursalId}/${medicamentoId}`,
+    );
     return response.data;
   },
 
   // Descontar del inventario
   descontarInventario: async (descontar) => {
-    const response = await inventarioAPI.put('/inventarios/descontar', descontar);
+    const response = await inventarioAPI.put(
+      "/inventarios/descontar",
+      descontar,
+    );
     return response.data;
   },
 
@@ -41,7 +66,7 @@ export const inventarioService = {
 
   // Obtener todas las sucursales
   getAllSucursales: async () => {
-    const response = await inventarioAPI.get('/sucursales');
+    const response = await inventarioAPI.get("/sucursales");
     return response.data;
   },
 
@@ -53,7 +78,7 @@ export const inventarioService = {
 
   // Crear sucursal
   createSucursal: async (sucursal) => {
-    const response = await inventarioAPI.post('/sucursales', sucursal);
+    const response = await inventarioAPI.post("/sucursales", sucursal);
     return response.data;
   },
 

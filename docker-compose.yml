@@ -17,6 +17,26 @@ services:
       timeout: 20s
       retries: 10
 
+  # --- Base de Datos PostgreSQL para OAuth ---
+  postgres-oauth:
+    image: postgres:16-alpine
+    container_name: postgres-oauth
+    restart: always
+    environment:
+      POSTGRES_DB: oauth_db
+      POSTGRES_USER: oauth_user
+      POSTGRES_PASSWORD: oauth_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-oauth.sql:/docker-entrypoint-initdb.d/init-oauth.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oauth_user -d oauth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # --- Microservicio Catálogo ---
   ms-catalogo:
     build: ./ms-catalogo
@@ -80,6 +100,26 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  # --- Microservicio de Autenticación ---
+  ms-auth:
+    build: ./ms-auth
+    container_name: ms-auth
+    ports:
+      - "8084:8084"
+    environment:
+      - SERVER_PORT=8084
+      - DB_HOST=postgres-oauth
+      - DB_PORT=5432
+      - DB_NAME=oauth_db
+      - DB_USER=oauth_user
+      - DB_PASSWORD=oauth_pass
+      - JWT_SECRET=TuSecretoMuySeguroParaJWTQueDebeSerLargoYComplejo123456789
+      - JWT_EXPIRATION=86400000
+    depends_on:
+      postgres-oauth:
+        condition: service_healthy
+    restart: unless-stopped
+
   # --- API Gateway ---
   gateway:
     build: ./gateway
@@ -91,6 +131,7 @@ services:
       - CATALOGO_URI=http://ms-catalogo:8081
       - INVENTARIO_URI=http://ms-inventario:8082
       - VENTAS_URI=http://ms-ventas:8083
+      - AUTH_URI=http://ms-auth:8084
       - LOG_LEVEL=DEBUG
     depends_on:
       ms-catalogo:
@@ -98,6 +139,8 @@ services:
       ms-inventario:
         condition: service_started
       ms-ventas:
+        condition: service_started
+      ms-auth:
         condition: service_started
     restart: unless-stopped
     healthcheck:
@@ -127,3 +170,4 @@ services:
 
 volumes:
   mysql_data:
+  postgres_data:

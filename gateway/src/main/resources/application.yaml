@@ -4,6 +4,11 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: ms-auth
+          uri: http://ms-auth:8084
+          predicates:
+            - Path=/api/auth/**
+
         - id: ms-catalogo
           uri: http://ms-catalogo:8081
           predicates:
@@ -28,6 +33,23 @@ spring:
           uri: http://ms-ventas:8083
           predicates:
             - Path=/api/detalle-ventas/**
+
+      globalcors:
+        cors-configurations:
+          "[/**]":
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
 
 server:
   port: 8080
