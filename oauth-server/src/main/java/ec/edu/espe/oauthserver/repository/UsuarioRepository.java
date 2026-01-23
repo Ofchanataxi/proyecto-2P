@@ -1,4 +1,4 @@
-package ec.edu.espe.oauthserver.repositories;
+package ec.edu.espe.oauthserver.repository;
 
 import ec.edu.espe.oauthserver.models.entities.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;

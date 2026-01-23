@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmacia Online - Iniciar Sesión</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-page">
+        <!-- ======== LADO IZQUIERDO - SHOWCASE VISUAL ======== -->
+        <div class="login-showcase">
+            <!-- Emojis flotantes decorativos -->
+            <div class="floating-emojis">
+                <span class="emoji">💊</span>
+                <span class="emoji">🏥</span>
+                <span class="emoji">💉</span>
+                <span class="emoji">🩺</span>
+                <span class="emoji">❤️</span>
+            </div>
+
+            <div class="showcase-content">
+                <!-- Logo de la farmacia -->
+                <div class="pharmacy-logo">
+                    <span class="logo-icon">💊</span>
+                    <h1>Farmacia Online</h1>
+                </div>
+
+                <!-- Tagline principal -->
+                <h2 class="showcase-tagline">
+                    Tu salud es nuestra <span class="highlight">prioridad</span>
+                </h2>
+
+                <p class="showcase-subtitle">
+                    Medicamentos, cuidado personal y atención profesional desde cualquier lugar
+                </p>
+
+                <!-- Galería de imágenes estilo Instagram -->
+                <div class="image-gallery">
+                    <div class="gallery-item">
+                        <img th:src="@{/images/pharmacy-1.png}" alt="Interior de farmacia moderna">
+                    </div>
+                    <div class="gallery-item">
+                        <img th:src="@{/images/pharmacy-2.png}" alt="Atención farmacéutica profesional">
+                    </div>
+                    <div class="gallery-item">
+                        <img th:src="@{/images/pharmacy-3.png}" alt="Servicio al cliente">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======== LADO DERECHO - FORMULARIO DE LOGIN ======== -->
+        <div class="login-form-container">
+            <div class="login-card">
+                <!-- Header del formulario -->
+                <div class="login-header">
+                    <h2>Iniciar Sesión</h2>
+                    <p>Ingresa tus credenciales para continuar</p>
+                </div>
+
+                <!-- Mostrar error si existe -->
+                <div th:if="${param.error}" class="error-alert">
+                    <span class="error-icon">⚠️</span>
+                    <span>Usuario o contraseña incorrectos. Inténtalo de nuevo.</span>
+                </div>
+
+                <!-- Mostrar mensaje de logout -->
+                <div th:if="${param.logout}" class="success-alert">
+                    <span class="success-icon">✅</span>
+                    <span>Has cerrado sesión correctamente.</span>
+                </div>
+
+                <!-- Formulario de Login -->
+                <form th:action="@{/login}" method="post" class="login-form">
+                    <div class="form-group">
+                        <label for="username">
+                            <span class="label-icon">👤</span>
+                            Usuario
+                        </label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            placeholder="Ingresa tu usuario"
+                            required 
+                            autofocus
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">
+                            <span class="label-icon">🔒</span>
+                            Contraseña
+                        </label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="Ingresa tu contraseña"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        <span class="button-icon">🔑</span>
+                        Iniciar Sesión
+                    </button>
+                </form>
+
+                <!-- Separador -->
+                <div class="login-divider">
+                    <span>Beneficios</span>
+                </div>
+
+                <!-- Features / Beneficios -->
+                <div class="login-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">🛒</span>
+                        <span class="feature-text">Gestiona tu carrito de compras</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📦</span>
+                        <span class="feature-text">Seguimiento de pedidos en tiempo real</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">💰</span>
+                        <span class="feature-text">Ofertas y descuentos exclusivos</span>
+                    </div>
+                </div>
+
+                <!-- Footer del login -->
+                <div class="login-footer">
+                    <div class="company-badge">
+                        <span class="brand">Farmacia Online</span> © 2026
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

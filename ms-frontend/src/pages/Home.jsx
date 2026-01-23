@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-// CORRECCIÓN 1: Importar todo el módulo como un objeto
-import * as catalogoService from '../services/catalogoService';
-import * as inventarioService from '../services/inventarioService';
+import catalogoService from '../services/catalogoService';
+import inventarioService from '../services/inventarioService';
 import { useCart } from '../context/CartContext';
+import Modal from '../components/Modal'; // Importar Modal
 import './Home.css';
 
 const Home = () => {
@@ -18,6 +18,10 @@ const Home = () => {
   const params = useParams();
   const location = useLocation();
   const [categoryMap, setCategoryMap] = useState({});
+
+  // Estado para el Modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   const cleanCategoryName = (categoryName) => {
     if (!categoryName || typeof categoryName !== 'string') return categoryName;
@@ -75,20 +79,19 @@ const Home = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      // CORRECCIÓN 2: Usar los nombres correctos de las funciones (getMedicamentos y getSucursales)
       const [medicamentosData, sucursalesData] = await Promise.all([
-        catalogoService.getMedicamentos(), 
+        catalogoService.getMedicamentos(),
         inventarioService.getSucursales(),
       ]);
-      
+
       const fixed = (medicamentosData || []).map(m => ({
         ...m,
         nombre: m.nombre,
         categoria: cleanCategoryName(m.categoria)
       }));
       setMedicamentos(fixed);
-      setSucursales(sucursalesData);
-      
+      setSucursales(Array.isArray(sucursalesData) ? sucursalesData : []);
+
       const map = {};
       fixed.forEach(m => {
         if (m && m.categoria) {
@@ -100,20 +103,28 @@ const Home = () => {
       setCategoryMap(map);
     } catch (error) {
       console.error('Error al cargar datos:', error);
-      // alert('Error al cargar datos...'); // Comentado para evitar spam en desarrollo
+      setMedicamentos([]);
+      setSucursales([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const showModal = (message) => {
+    setModalMessage(message);
+    setModalOpen(true);
+    // Auto-cerrar después de 3 segundos opcionalmente
+    // setTimeout(() => setModalOpen(false), 3000);
+  };
+
   const handleAddToCart = (medicamento) => {
     if (!sucursalId) {
-      alert('Por favor selecciona una sucursal primero');
+      showModal('⚠️ Por favor selecciona una sucursal primero');
       return;
     }
     try {
       addToCart(medicamento, 1);
-      alert(`✅ ${medicamento.nombre} agregado al carrito`);
+      showModal(`${medicamento.nombre} agregado al carrito`);
     } catch (error) {
       console.error('Error al agregar al carrito:', error);
     }
@@ -151,6 +162,12 @@ const Home = () => {
 
   return (
     <div className="home">
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        message={modalMessage}
+      />
+
       <section className="hero-banner">
         <div className="container">
           <div className="hero-content">
@@ -178,7 +195,7 @@ const Home = () => {
       {sucursalId && (
         <section className="selected-sucursal">
           <div className="container">
-            <p>📍 Sucursal: <strong>{sucursales.find(s => s.id === sucursalId)?.nombre}</strong> <button onClick={() => selectSucursal(null)}>Cambiar</button></p>
+            <p>📍 Sucursal: <strong>{sucursales.find(s => s.id === sucursalId)?.nombre}</strong> <button className="change-btn" onClick={() => selectSucursal(null)}>Cambiar</button></p>
           </div>
         </section>
       )}
@@ -188,10 +205,10 @@ const Home = () => {
           <div className="container">
             <h2>Categorías</h2>
             <div className="categories-grid">
-               <button className={`category-card ${selectedCategory === 'todos' ? 'active' : ''}`} onClick={() => navigate('/categorias/todos')}>
-                  <h3>Todos</h3>
-               </button>
-               {/* Puedes agregar más botones estáticos o dinámicos aquí */}
+              <button className={`category-card ${selectedCategory === 'todos' ? 'active' : ''}`} onClick={() => navigate('/categorias/todos')}>
+                <h3>Todos</h3>
+              </button>
+              {/* Puedes agregar más botones estáticos o dinámicos aquí */}
             </div>
           </div>
         </section>
@@ -203,6 +220,9 @@ const Home = () => {
           <div className="products-grid">
             {filteredMedicamentos.map((medicamento) => (
               <div key={medicamento.id} className="product-card">
+                <div className="product-image">
+                  <span className="product-icon">💊</span>
+                </div>
                 <div className="product-info">
                   <h3>{medicamento.nombre}</h3>
                   <p>{medicamento.laboratorio}</p>

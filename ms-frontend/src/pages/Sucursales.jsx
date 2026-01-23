@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // CORRECCIÓN 1: Importar como objeto
-import * as inventarioService from '../services/inventarioService';
+import inventarioService from '../services/inventarioService';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
@@ -33,7 +33,7 @@ const Sucursales = () => {
       <h2>📍 Nuestras Sucursales</h2>
       <div className="sucursales-grid">
         {sucursales.map(s => (
-          <div key={s.id} className="sucursal-btn" style={{cursor: 'default'}}> 
+          <div key={s.id} className="sucursal-btn" style={{ cursor: 'default' }}>
             <strong>{s.nombre}</strong>
             <small>{s.direccion}</small>
           </div>
