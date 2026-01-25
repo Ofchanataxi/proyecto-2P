@@ -50,6 +50,10 @@ export const inventarioService = {
     createInventario: async (payload) => {
         const response = await inventarioAPI.post('/inventarios', payload);
         return response.data;
+    },
+    getInventarios: async () => {
+        const response = await inventarioAPI.get('/inventarios');
+        return response.data;
     }
 };
 

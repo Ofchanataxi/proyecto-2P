@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { inventarioService } from '../services/inventarioService';
 import { ventasService } from '../services/ventasService';
+import Modal from '../components/Modal';
 import './Cart.css';
 
 const Cart = () => {
@@ -10,10 +11,18 @@ const Cart = () => {
   const navigate = useNavigate();
   const [cliente, setCliente] = useState({ cedula: '', nombre: '', email: '', telefono: '' });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [modalInfo, setModalInfo] = useState({ isOpen: false, message: '', type: 'success' });
+
+  const showModal = (message, type = 'success') => {
+    setModalInfo({ isOpen: true, message, type });
+  };
 
   const handleCheckout = async (e) => {
     e.preventDefault();
-    if (!sucursalId) return alert('Selecciona sucursal en el Inicio');
+    if (!sucursalId) {
+      showModal('⚠️ Por favor selecciona una sucursal antes de continuar', 'error');
+      return;
+    }
 
     setIsProcessing(true);
     try {
@@ -31,14 +40,30 @@ const Cart = () => {
       console.log("Enviando venta:", payload);
       await ventasService.createVenta(payload);
 
-      // La actualización del inventario ocurre en el backend cuando se procesa la venta
-      // La alerta informa al usuario que esto ha sucedido
-      alert('✅ Compra exitosa. El inventario ha sido actualizado.');
-      clearCart();
-      navigate('/');
+      showModal('✅ ¡Compra realizada exitosamente! El inventario ha sido actualizado.', 'success');
+
+      // Clear cart and navigate after a short delay
+      setTimeout(() => {
+        clearCart();
+        navigate('/');
+      }, 2000);
     } catch (err) {
       console.error(err);
-      alert('❌ Error al procesar la compra. Verifique el stock o intente nuevamente.');
+
+      // Provide more specific error message
+      let errorMessage = '❌ Error al procesar la compra.';
+
+      if (err.response?.status === 400) {
+        errorMessage = '❌ Stock insuficiente. Algunos productos no tienen stock disponible en esta sucursal.';
+      } else if (err.response?.status === 404) {
+        errorMessage = '❌ Producto o sucursal no encontrados. Verifique su selección.';
+      } else if (err.response?.data?.message) {
+        errorMessage = `❌ ${err.response.data.message}`;
+      } else {
+        errorMessage = '❌ Error de conexión. Verifique el stock o intente nuevamente.';
+      }
+
+      showModal(errorMessage, 'error');
     } finally {
       setIsProcessing(false);
     }
@@ -47,6 +72,12 @@ const Cart = () => {
   if (cart.length === 0) {
     return (
       <div className="cart-page">
+        <Modal
+          isOpen={modalInfo.isOpen}
+          onClose={() => setModalInfo({ ...modalInfo, isOpen: false })}
+          message={modalInfo.message}
+          type={modalInfo.type}
+        />
         <div className="container">
           <div className="empty-cart">
             <span className="empty-icon">🛒</span>
@@ -63,6 +94,13 @@ const Cart = () => {
 
   return (
     <div className="cart-page">
+      <Modal
+        isOpen={modalInfo.isOpen}
+        onClose={() => setModalInfo({ ...modalInfo, isOpen: false })}
+        message={modalInfo.message}
+        type={modalInfo.type}
+      />
+
       <div className="container">
         <h1 className="page-title">🛒 Finalizar Compra</h1>
 
@@ -77,13 +115,20 @@ const Cart = () => {
             {cart.map((item) => (
               <div key={item.id} className="cart-item">
                 <div className="item-image">
-                  <span className="item-icon">💊</span>
+                  {item.imagenUrl ? (
+                    <img
+                      src={item.imagenUrl}
+                      alt={item.nombre}
+                      onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                    />
+                  ) : null}
+                  <span className="item-icon" style={{ display: item.imagenUrl ? 'none' : 'flex' }}>💊</span>
                 </div>
 
                 <div className="item-details">
                   <h3>{item.nombre}</h3>
                   <p className="item-lab">{item.laboratorio}</p>
-                  <p className="item-price">${item.precioUnitario.toFixed(2)}</p>
+                  <p className="item-price">${item.precioUnitario.toFixed(2)} c/u</p>
                 </div>
 
                 <div className="item-quantity">
@@ -117,8 +162,9 @@ const Cart = () => {
 
             <form onSubmit={handleCheckout} className="client-form">
               <div className="form-field">
+                <label>Cédula de Identidad</label>
                 <input
-                  placeholder="Cédula de Identidad"
+                  placeholder="1234567890"
                   value={cliente.cedula}
                   onChange={e => setCliente({ ...cliente, cedula: e.target.value })}
                   required
@@ -128,8 +174,9 @@ const Cart = () => {
               </div>
 
               <div className="form-field">
+                <label>Nombre Completo</label>
                 <input
-                  placeholder="Nombre Completo"
+                  placeholder="Juan Pérez"
                   value={cliente.nombre}
                   onChange={e => setCliente({ ...cliente, nombre: e.target.value })}
                   required
@@ -137,8 +184,9 @@ const Cart = () => {
               </div>
 
               <div className="form-field">
+                <label>Correo Electrónico</label>
                 <input
-                  placeholder="Correo Electrónico"
+                  placeholder="juan@email.com"
                   type="email"
                   value={cliente.email}
                   onChange={e => setCliente({ ...cliente, email: e.target.value })}
@@ -147,8 +195,9 @@ const Cart = () => {
               </div>
 
               <div className="form-field">
+                <label>Teléfono Celular</label>
                 <input
-                  placeholder="Teléfono Celular"
+                  placeholder="0991234567"
                   value={cliente.telefono}
                   onChange={e => setCliente({ ...cliente, telefono: e.target.value })}
                   required
@@ -171,11 +220,11 @@ const Cart = () => {
               </div>
 
               <button type="submit" className="checkout-btn" disabled={isProcessing}>
-                {isProcessing ? 'Procesando...' : 'Pagar y Finalizar'}
+                {isProcessing ? 'Procesando...' : '💳 Pagar y Finalizar'}
               </button>
 
               <button type="button" className="continue-shopping-link" onClick={() => navigate('/')}>
-                Seguir Comprando
+                ← Seguir Comprando
               </button>
             </form>
           </div>

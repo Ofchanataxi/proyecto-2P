@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Cart from './pages/Cart'
 import Admin from './pages/Admin'
+import Profile from './pages/Profile'
 import Sucursales from './pages/Sucursales'
 import LoginPage, { LoginLoading, LoginError } from './pages/Login'
 import './App.css'
@@ -58,6 +59,7 @@ function App() {
             <Route path="/carrito" element={<Cart />} />
             <Route path="/sucursales" element={<Sucursales />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/perfil" element={<Profile />} />
           </Routes>
         </main>
         <Footer />

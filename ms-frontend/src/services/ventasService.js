@@ -30,11 +30,30 @@ ventasAPI.interceptors.request.use(config => {
 export const ventasService = {
   createVenta: async (ventaData) => {
     try {
-      // El backend espera un objeto Venta. Asegúrate de que ventaData coincida con tu DTO/Entidad
       const response = await ventasAPI.post('', ventaData);
       return response.data;
     } catch (error) {
       console.error('Error en createVenta:', error);
+      throw error;
+    }
+  },
+
+  getVentas: async () => {
+    try {
+      const response = await ventasAPI.get('');
+      return response.data;
+    } catch (error) {
+      console.error('Error en getVentas:', error);
+      return [];
+    }
+  },
+
+  getVentaById: async (id) => {
+    try {
+      const response = await ventasAPI.get(`/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error en getVentaById:', error);
       throw error;
     }
   }

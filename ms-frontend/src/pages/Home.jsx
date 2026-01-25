@@ -205,10 +205,34 @@ const Home = () => {
           <div className="container">
             <h2>Categorías</h2>
             <div className="categories-grid">
-              <button className={`category-card ${selectedCategory === 'todos' ? 'active' : ''}`} onClick={() => navigate('/categorias/todos')}>
+              <button
+                className={`category-card ${selectedCategory === 'todos' ? 'active' : ''}`}
+                onClick={() => { setSelectedCategory('todos'); navigate('/'); }}
+              >
+                <span className="category-icon">🏠</span>
                 <h3>Todos</h3>
+                <small>{medicamentos.length} productos</small>
               </button>
-              {/* Puedes agregar más botones estáticos o dinámicos aquí */}
+
+              {/* Categorías dinámicas desde los productos */}
+              {[...new Set(medicamentos.map(m => m.categoria).filter(Boolean))].map(cat => {
+                const count = medicamentos.filter(m => m.categoria === cat).length;
+                const icons = {
+                  'Analgesicos': '💊', 'Antibioticos': '💉', 'Vitaminas': '🧬',
+                  'Antiinflamatorios': '🩹', 'Antigripales': '🤧', 'Dermatologicos': '🧴'
+                };
+                return (
+                  <button
+                    key={cat}
+                    className={`category-card ${selectedCategory === cat ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(cat)}
+                  >
+                    <span className="category-icon">{icons[cat] || '📦'}</span>
+                    <h3>{cat}</h3>
+                    <small>{count} productos</small>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -216,24 +240,46 @@ const Home = () => {
 
       <section className="products-section">
         <div className="container">
-          <h2>{isSearchMode ? `Resultados: "${searchQuery}"` : 'Productos Disponibles'}</h2>
-          <div className="products-grid">
-            {filteredMedicamentos.map((medicamento) => (
-              <div key={medicamento.id} className="product-card">
-                <div className="product-image">
-                  <span className="product-icon">💊</span>
+          <h2>{isSearchMode ? `Resultados: "${searchQuery}"` : selectedCategory === 'todos' ? 'Todos los Productos' : `Categoría: ${selectedCategory}`}</h2>
+          {filteredMedicamentos.length === 0 ? (
+            <div className="no-products">
+              <span style={{ fontSize: '60px' }}>🔍</span>
+              <h3>No se encontraron productos</h3>
+              <p>Intenta con otra búsqueda o categoría</p>
+            </div>
+          ) : (
+            <div className="products-grid">
+              {filteredMedicamentos.map((medicamento) => (
+                <div key={medicamento.id} className="product-card">
+                  <div className="product-image">
+                    {medicamento.imagenUrl ? (
+                      <img
+                        src={medicamento.imagenUrl}
+                        alt={medicamento.nombre}
+                        onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                      />
+                    ) : null}
+                    <span className="product-icon" style={{ display: medicamento.imagenUrl ? 'none' : 'flex' }}>💊</span>
+                  </div>
+                  {medicamento.categoria && (
+                    <span className="product-badge">{medicamento.categoria}</span>
+                  )}
+                  <div className="product-info">
+                    <h3>{medicamento.nombre}</h3>
+                    <p className="lab">{medicamento.laboratorio}</p>
+                    <p className="price">${medicamento.precioUnitario?.toFixed(2)}</p>
+                    <button
+                      className="add-to-cart-btn"
+                      onClick={() => handleAddToCart(medicamento)}
+                      disabled={!sucursalId}
+                    >
+                      {sucursalId ? '🛒 Agregar al carrito' : 'Selecciona sucursal'}
+                    </button>
+                  </div>
                 </div>
-                <div className="product-info">
-                  <h3>{medicamento.nombre}</h3>
-                  <p>{medicamento.laboratorio}</p>
-                  <p className="price">${medicamento.precioUnitario.toFixed(2)}</p>
-                  <button className="add-to-cart-btn" onClick={() => handleAddToCart(medicamento)} disabled={!sucursalId}>
-                    {sucursalId ? 'Agregar al carrito' : 'Selecciona sucursal'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>

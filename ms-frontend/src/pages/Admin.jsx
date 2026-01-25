@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DashboardAdmin from '../components/admin/DashboardAdmin';
 import MedicamentosAdmin from '../components/admin/MedicamentosAdmin';
 import SucursalesAdmin from '../components/admin/SucursalesAdmin';
 import InventarioAdmin from '../components/admin/InventarioAdmin';
-import UsuariosAdmin from '../components/admin/UsuariosAdmin'; // Importar
+import UsuariosAdmin from '../components/admin/UsuariosAdmin';
 import { User } from 'oidc-client-ts';
 import './Admin.css';
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState('medicamentos');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [token, setToken] = useState('');
   const [showToken, setShowToken] = useState(false);
   const navigate = useNavigate();
@@ -28,7 +29,12 @@ const Admin = () => {
 
   const copyToken = () => {
     navigator.clipboard.writeText(token);
-    alert('Token copiado al portapapeles');
+    // Show brief feedback
+    const btn = document.querySelector('.copy-token-btn');
+    if (btn) {
+      btn.textContent = '✅ Copiado';
+      setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+    }
   };
 
   return (
@@ -45,27 +51,33 @@ const Admin = () => {
       <div className="container">
 
         {/* Token Viewer para fines académicos */}
-        <div className="token-viewer" style={{ marginBottom: '20px', background: '#333', color: '#fff', padding: '15px', borderRadius: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h4 style={{ margin: 0 }}>🔑 Token de Acceso (Debug)</h4>
-            <div>
+        <div className="token-viewer">
+          <div className="token-header">
+            <h4>🔑 Token de Acceso (Debug)</h4>
+            <div className="token-actions">
               <button
                 onClick={() => setShowToken(!showToken)}
-                style={{ marginRight: '10px', padding: '5px 10px' }}
+                className="toggle-token-btn"
               >
-                {showToken ? 'Ocultar' : 'Mostrar'}
+                {showToken ? '👁️ Ocultar' : '👁️ Mostrar'}
               </button>
-              <button onClick={copyToken} style={{ padding: '5px 10px' }}>Copiar</button>
+              <button onClick={copyToken} className="copy-token-btn">Copiar</button>
             </div>
           </div>
           {showToken && (
-            <div style={{ marginTop: '10px', wordBreak: 'break-all', fontFamily: 'monospace', fontSize: '12px', background: '#000', padding: '10px', borderRadius: '4px' }}>
+            <div className="token-content">
               {token || 'No hay token disponible'}
             </div>
           )}
         </div>
 
         <div className="admin-tabs">
+          <button
+            className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            📊 Dashboard
+          </button>
           <button
             className={`tab-btn ${activeTab === 'medicamentos' ? 'active' : ''}`}
             onClick={() => setActiveTab('medicamentos')}
@@ -93,6 +105,7 @@ const Admin = () => {
         </div>
 
         <div className="admin-content">
+          {activeTab === 'dashboard' && <DashboardAdmin />}
           {activeTab === 'medicamentos' && <MedicamentosAdmin />}
           {activeTab === 'sucursales' && <SucursalesAdmin />}
           {activeTab === 'inventario' && <InventarioAdmin />}

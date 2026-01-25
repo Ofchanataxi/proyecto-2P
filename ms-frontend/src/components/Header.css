@@ -156,6 +156,43 @@
   box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
 }
 
+/* Dropdown link button */
+.dropdown-link {
+  width: 100%;
+  padding: 10px 15px;
+  background: #f8fafc;
+  color: #334155;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropdown-link:hover {
+  background: #e2e8f0;
+  color: #003d7a;
+}
+
+/* Profile link - highlighted style */
+.dropdown-link.profile-link {
+  background: linear-gradient(135deg, #003d7a 0%, #0051a3 100%);
+  color: white;
+  font-weight: 600;
+}
+
+.dropdown-link.profile-link:hover {
+  background: linear-gradient(135deg, #0051a3 0%, #0066cc 100%);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 61, 122, 0.3);
+}
+
 /* Header logout button (in main header) */
 .header-logout-btn {
   padding: 8px 16px;

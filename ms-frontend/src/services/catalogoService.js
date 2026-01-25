@@ -34,6 +34,12 @@ export const catalogoService = {
     return response.data;
   },
 
+  // Alias para compatibilidad con MedicamentosAdmin
+  getAllMedicamentos: async () => {
+    const response = await catalogoAPI.get('');
+    return response.data;
+  },
+
   getMedicamentoById: async (id) => {
     const response = await catalogoAPI.get(`/${id}`);
     return response.data;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from 'react-oidc-context';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import './Header.css';
 import Modal from './Modal'; // Importar Modal reutilizable
@@ -11,6 +11,7 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   // Estado para el modal de confirmación
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -111,6 +112,18 @@ const Header = () => {
                       <small>Rol: {userRole}</small>
                     </div>
                     <hr />
+                    <button
+                      onClick={() => { navigate('/perfil'); setShowUserMenu(false); }}
+                      className="dropdown-link profile-link"
+                    >
+                      👤 Mi Perfil
+                    </button>
+                    <button
+                      onClick={() => { navigate('/perfil'); setShowUserMenu(false); }}
+                      className="dropdown-link"
+                    >
+                      ⚙️ Configuración de Cuenta
+                    </button>
                     <button onClick={confirmLogout} className="logout-btn">
                       🚪 Cerrar Sesión
                     </button>
@@ -131,20 +144,22 @@ const Header = () => {
               🏥 <span>Farmacia Online</span>
             </div>
 
-            <form className="search-bar" onSubmit={handleSearch}>
-              <input
-                type="text"
-                placeholder="Buscar medicamentos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button type="submit">🔍 Buscar</button>
-            </form>
+            {['/', '/sucursales'].some(path => location.pathname === path || location.pathname.startsWith(path + '/')) && (
+              <form className="search-bar" onSubmit={handleSearch}>
+                <input
+                  type="text"
+                  placeholder="Buscar medicamentos..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button type="submit">🔍 Buscar</button>
+              </form>
+            )}
 
             <div className="header-actions">
               {userRole === 'ADMIN' && (
-                <Link to="/admin" className="header-link">
-                  👤 Admin
+                <Link to="/admin" className="header-link admin-link">
+                  ⚙️ Admin
                 </Link>
               )}
               <Link to="/carrito" className="cart-link">
@@ -153,12 +168,6 @@ const Header = () => {
                   <span className="cart-badge">{getItemCount()}</span>
                 )}
               </Link>
-
-              {auth.isAuthenticated && (
-                <button onClick={confirmLogout} className="header-logout-btn">
-                  🚪 Salir
-                </button>
-              )}
             </div>
           </div>
         </div>
