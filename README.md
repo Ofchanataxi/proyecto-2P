@@ -1,423 +1,195 @@
-#   Farmacia Online - Tu Salud, Nuestra Prioridad
+# 💊 Farmacia Online - Tu Salud, Nuestra Prioridad
 
 ## 🌟 ¿Qué es Farmacia Online?
 
-**Farmacia Online** es una plataforma digital moderna que te permite comprar medicamentos desde la comodidad de tu hogar. Ofrecemos una experiencia completa con múltiples sucursales, búsqueda inteligente y un carrito de compras fácil de usar.
+**Farmacia Online** es una plataforma digital moderna diseñada bajo una arquitectura de microservicios distribuidos. Ofrece una experiencia completa de e-commerce farmacéutico con múltiples sucursales, búsqueda inteligente, carrito de compras y un robusto sistema de seguridad basado en **OAuth 2.0 y OpenID Connect**.
+
+Esta versión incluye un **Panel de Administración Completo** para gestionar el negocio y herramientas académicas para inspeccionar la seguridad.
 
 ### ✨ Características Principales
 
-🔍 **Búsqueda Inteligente** - Encuentra medicamentos por nombre, laboratorio o categoría
-🏪 **Múltiples Sucursales** - Elige la sucursal más cercana a ti
-🛒 **Carrito de Compras** - Agrega productos y gestiona tu pedido
-📦 **Categorías Organizadas** - Analgesicos, Antibioticos, Vitaminas y Ofertas
-  **Ofertas Especiales** - Descuentos de hasta 30% en productos seleccionados
-📱 **Diseño Responsivo** - Funciona perfectamente en móviles y computadoras
-
-## 🚀 Cómo Usar la Plataforma
-
-### 💻 Acceso a la Aplicación
-Visita: **http://localhost:3000** en tu navegador favorito
+- 🔐 **Autenticación OAuth 2.0** - Login seguro con servidor de autorización propio (Spring Authorization Server).
+- 👥 **Gestión de Usuarios (Admin)** - Panel para crear, editar y eliminar usuarios y asignar roles (ADMIN/USER).
+- 🔑 **Visualizador de Token** - Herramienta académica integrada para ver y copiar el Token JWT de acceso.
+- 🏪 **Gestión de Sucursales** - Administra las ubicaciones físicas de la farmacia.
+- 💊 **Gestión de Medicamentos** - Control total del catálogo de productos.
+- 🔍 **Búsqueda Inteligente** - Filtros por categorías, nombre y laboratorio.
+- 🛒 **Carrito de Compras** - Persistencia local y flujo de compra fluido.
+- 📱 **Diseño Responsivo & Premium** - Interfaz moderna con animaciones y adaptabilidad móvil.
+- 🌐 **Soporte Dual** - Funciona tanto en `localhost` como en `127.0.0.1` (CORS configurado).
 
 ---
 
-## 🐳 Instalación con Docker
+## 🏗️ Arquitectura del Sistema
+
+El sistema utiliza una arquitectura de microservicios contenerizada con Docker:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        FRONTEND (React)                         │
+│           http://localhost:3000 / http://127.0.0.1:3000         │
+└────────┬─────────────────────────┬──────────────────────────────┘
+         │                         │
+         ▼                         ▼
+┌──────────────────────┐    ┌─────────────────────────────────────┐
+│     API GATEWAY      │    │            OAUTH SERVER             │
+│   (Spring Cloud)     │    │      (Spring Authorization)         │
+│ http://localhost:8080│    │      http://localhost:9000          │
+└────────┬─────────────┘    └──────────────────┬──────────────────┘
+         │                                     │
+    ┌────┼─────────────┐                       ▼
+    ▼    ▼             ▼             ┌───────────────────┐
+┌─────┐ ┌──────┐ ┌─────┐             │    PostgreSQL     │
+│Catá-│ │Inven-│ │Ven- │             │      :5433        │
+│logo │ │tario │ │tas  │             │    (db_oauth)     │
+│:8081│ │:8082 │ │:8083│             └───────────────────┘
+└─┬───┘ └──┬───┘ └──┬──┘
+  │        │        │
+  └────────┼────────┘
+           ▼
+    ┌──────────────┐
+    │    MySQL     │
+    │    :3307     │
+    └──────────────┘
+```
+
+### 📦 Servicios y Puertos
+
+| Servicio | Puerto | Descripción | Tecnologías |
+|----------|--------|-------------|-------------|
+| `ms-frontend` | 3000 | Cliente Web | React, Vite, Axios, OIDC Client |
+| `api-gateway` | 8080 | Puerta de Enlace | Spring Cloud Gateway |
+| `oauth-server` | 9000 | Auth Server | Spring Authorization Server, JWT |
+| `ms-catalogo` | 8081 | Servicio Catálogo | Spring Boot, JPA |
+| `ms-inventario` | 8082 | Servicio Inventario | Spring Boot, JPA |
+| `ms-ventas` | 8083 | Servicio Ventas | Spring Boot, JPA |
+| `mysql-farmacia` | 3307 | Base de Datos | MySQL 8 |
+| `postgres-oauth` | 5433 | Base de Datos Auth | PostgreSQL 16 |
+
+---
+
+## 🚀 Instalación y Despliegue
 
 ### Prerrequisitos
+- **Docker Desktop** instalado y corriendo.
+- **Git** para clonar el repositorio.
 
-Antes de comenzar, asegúrate de tener instalado:
+### Pasos de Instalación
 
-- **Docker Desktop** (incluye Docker y Docker Compose)
-  - [Descargar para Windows](https://www.docker.com/products/docker-desktop/)
-  - [Descargar para Mac](https://www.docker.com/products/docker-desktop/)
-  - [Descargar para Linux](https://docs.docker.com/desktop/install/linux-install/)
-- **Git** (para clonar el repositorio)
-  - [Descargar Git](https://git-scm.com/downloads)
+1. **Clonar el repositorio**:
+   ```bash
+   git clone https://github.com/Ofchanataxi/proyecto-2P.git
+   cd proyecto-2P
+   git switch oauth
+   ```
 
-### 🚀 Instalación Rápida
+2. **Levantar el entorno**:
+   ```bash
+   docker-compose up -d --build
+   ```
+   *Este comando construirá todas las imágenes y levantará los contenedores.*
 
-#### 1️⃣ Clonar el Repositorio
+3. **Verificar estado**:
+   ```bash
+   docker-compose ps
+   ```
+   *Asegúrate de que todos los contenedores estén en estado "Up".*
 
-```bash
-git clone https://github.com/Ofchanataxi/proyecto-2P.git
-cd proyecto-2P
-```
-
-#### 2️⃣ Levantar los Servicios con Docker Compose
-
-```bash
-docker-compose up -d
-```
-
-Este comando:
-- ✅ Descarga las imágenes necesarias (MySQL, Java, Node, Nginx)
-- ✅ Construye los 4 microservicios (catálogo, inventario, ventas, frontend)
-- ✅ Crea las 3 bases de datos (db_catalogo, db_inventario, db_ventas)
-- ✅ Inicializa los datos de ejemplo
-- ✅ Levanta todos los servicios en segundo plano
-
-**Tiempo estimado:** 2-5 minutos (primera vez)
-
-#### 3️⃣ Verificar que los Servicios Estén Corriendo
-
-```bash
-docker-compose ps
-```
-
-Deberías ver 5 contenedores corriendo:
-- `mysql-farmacia` (Base de datos)
-- `ms-catalogo` (API Catálogo)
-- `ms-inventario` (API Inventario)
-- `ms-ventas` (API Ventas)
-- `ms-frontend` (Aplicación Web)
-
-#### 4️⃣ Acceder a la Aplicación
-
-Espera 30 segundos para que todos los servicios inicien completamente, luego abre:
-
-**🌐 Frontend:** http://localhost:3000
-
-**APIs (opcional):**
-- Catálogo: http://localhost:8081/api/medicamentos
-- Inventario: http://localhost:8082/api/sucursales
-- Ventas: http://localhost:8083/api/ventas
+4. **Acceder a la aplicación**:
+   Abre tu navegador (Chrome/Safari/Firefox) en:
+   👉 **http://localhost:3000** o **http://127.0.0.1:3000**
 
 ---
 
-### 📋 Comandos Útiles de Docker
+## 🔐 Credenciales y Seguridad
 
-#### Ver Logs de los Servicios
+El sistema viene preconfigurado con usuarios para pruebas:
 
-```bash
-# Ver logs de todos los servicios
-docker-compose logs -f
+| Usuario | Contraseña | Rol | Acceso |
+|---------|------------|-----|--------|
+| `admin` | `admin123` | **ADMIN** | Acceso total al Panel de Administración |
+| `usuario` | `user123` | **USER** | Compra y catálogo básico |
 
-# Ver logs de un servicio específico
-docker-compose logs -f ms-frontend
-docker-compose logs -f ms-ventas
-docker-compose logs -f ms-catalogo
-docker-compose logs -f ms-inventario
-```
+### Gestión de Usuarios (Nuevo)
+Puedes crear nuevos usuarios directamente desde la base de datos o usando el **Panel de Administración** si estás logueado como `admin`.
 
-#### Detener los Servicios
-
-```bash
-# Detener sin eliminar contenedores
-docker-compose stop
-
-# Detener y eliminar contenedores
-docker-compose down
-```
-
-#### Reiniciar un Servicio Específico
-
-```bash
-# Reiniciar el frontend
-docker-compose restart ms-frontend
-
-# Reiniciar el servicio de ventas
-docker-compose restart ms-ventas
-```
-
-#### Reconstruir los Servicios
-
-Si haces cambios en el código:
-
-```bash
-# Reconstruir todos los servicios
-docker-compose build
-
-# Reconstruir y levantar
-docker-compose up -d --build
-
-# Reconstruir solo un servicio
-docker-compose build ms-ventas
-docker-compose up -d ms-ventas
-```
-
-#### Resetear la Base de Datos
-
-```bash
-# Detener y eliminar todo (incluyendo volúmenes)
-docker-compose down -v
-
-# Volver a levantar (se reinicializará la BD)
-docker-compose up -d
-```
-
-#### Ver el Estado de los Contenedores
-
-```bash
-# Ver contenedores corriendo
-docker ps
-
-# Ver todos los contenedores (incluso detenidos)
-docker ps -a
-
-# Ver uso de recursos
-docker stats
+Carga manual SQL (opcional):
+```sql
+docker exec -it postgres-oauth psql -U admin -d db_oauth -c \
+  "INSERT INTO usuarios (enabled, password, role, username) VALUES (true, '{noop}nuevo123', 'USER', 'nuevo') ON CONFLICT (username) DO NOTHING;"
 ```
 
 ---
 
-### 🔧 Solución de Problemas
+## ⚙️ Panel de Administración
 
-#### Problema: Los servicios no inician
+Accede haciendo clic en el botón **"👤 Admin"** en el header (solo visible si eres ADMIN).
 
-**Solución:**
+### Funcionalidades del Panel:
+1. **💊 Medicamentos**: Crear, editar y eliminar productos del catálogo.
+2. **📍 Sucursales**: Gestionar ubicaciones físicas de farmacias.
+3. **📦 Inventario**: Asignar stock de medicamentos a sucursales.
+4. **👥 Usuarios (CRUD Completo)**:
+   - ➕ **Crear**: Nuevos usuarios con username, contraseña y rol.
+   - 📋 **Listar**: Ver todos los usuarios registrados en el sistema.
+   - ✏️ **Editar**: Modificar rol, estado (activo/inactivo) y resetear contraseñas.
+   - 🗑️ **Eliminar**: Eliminar usuarios (excepto el admin principal).
+   - 🔐 **Roles**: Asignar roles ADMIN o USER.
+   - ✅ **Estado**: Activar/Desactivar cuentas de usuario.
+
+> **Nota de Seguridad**: El usuario `admin` principal no puede ser eliminado para evitar quedarse sin acceso al sistema.
+
+### 🔑 Token Debugging
+En la parte superior del panel de administración encontrarás una sección oscura llamada **"Token de Acceso (Debug)"**. 
+- Haz clic en "Mostrar" para revelar tu JWT actual.
+- Usa "Copiar" para llevarlo al portapapeles y analizarlo en [jwt.io](https://jwt.io).
+
+---
+
+## � API REST de Usuarios
+
+El servidor OAuth expone endpoints REST para la gestión de usuarios (requiere rol ADMIN y token JWT):
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/usuarios` | Obtener todos los usuarios |
+| `GET` | `/usuarios/{id}` | Obtener usuario por ID |
+| `GET` | `/usuarios/buscar/{username}` | Buscar usuario por username |
+| `POST` | `/usuarios` | Crear nuevo usuario |
+| `PUT` | `/usuarios/{id}` | Actualizar usuario existente |
+| `DELETE` | `/usuarios/{id}` | Eliminar usuario |
+
+### Ejemplo de petición (crear usuario):
 ```bash
-# Detener todo
-docker-compose down
-
-# Limpiar volúmenes
-docker-compose down -v
-
-# Volver a levantar
-docker-compose up -d
-
-# Ver logs para identificar errores
-docker-compose logs -f
-```
-
-#### Problema: Puerto ya en uso
-
-Si ves un error como "port is already allocated":
-
-**Solución:**
-```bash
-# Opción 1: Detener el proceso que usa el puerto
-# En Windows (PowerShell):
-netstat -ano | findstr :3000
-taskkill /PID <PID> /F
-
-# Opción 2: Cambiar el puerto en docker-compose.yml
-# Edita el archivo y cambia:
-ports:
-  - "3001:3000"  # En lugar de 3000:3000
-```
-
-#### Problema: Error de conexión a la base de datos
-
-**Solución:**
-```bash
-# Esperar más tiempo (los servicios tardan en iniciar)
-# Verificar que MySQL esté healthy:
-docker-compose ps
-
-# Si no está healthy, reiniciar:
-docker-compose restart mysql-farmacia
-```
-
-#### Problema: Cambios en el código no se reflejan
-
-**Solución:**
-```bash
-# Reconstruir la imagen
-docker-compose build ms-frontend  # o el servicio que modificaste
-docker-compose up -d
-
-# O reconstruir todo
-docker-compose up -d --build
+curl -X POST http://localhost:9000/usuarios \
+  -H "Authorization: Bearer <tu-token-jwt>" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"nuevo","password":"clave123","role":"USER","enabled":true}'
 ```
 
 ---
 
-### 🗂️ Estructura de Servicios
+## �🛒 Flujo de Usuario
 
-```
-Puerto 3000  → Frontend (React/Vite)
-Puerto 8080  → API Gateway (Spring Cloud Gateway) ← PUNTO DE ENTRADA ÚNICO
-Puerto 8081  → MS-Catálogo (Spring Boot)
-Puerto 8082  → MS-Inventario (Spring Boot)
-Puerto 8083  → MS-Ventas (Spring Boot)
-Puerto 3307  → MySQL (Base de datos)
-```
-
-### 🌐 API Gateway
-
-El **API Gateway** actúa como punto de entrada único para todas las peticiones:
-
-```
-Frontend → API Gateway (8080) → Microservicios
-              ├── /api/medicamentos/** → MS-Catálogo (8081)
-              ├── /api/sucursales/**   → MS-Inventario (8082)
-              ├── /api/inventarios/**  → MS-Inventario (8082)
-              └── /api/ventas/**       → MS-Ventas (8083)
-```
-
-**Beneficios del API Gateway:**
-- ✅ Punto de entrada único (simplifica configuración del frontend)
-- ✅ Balanceo de carga automático
-- ✅ CORS centralizado
-- ✅ Monitoreo con Actuator (`http://localhost:8080/actuator/health`)
-
-
+1. **Login**: Autentícate contra el OAuth Server.
+2. **Home**: Busca productos por categoría (Analgésicos, Vitaminas, etc.).
+3. **Detalle**: Ve información del producto y añádelo al carrito.
+4. **Checkout**: Valida tus datos en el carrito (Validación de cédula y RUC ecuatoriano integrada).
+5. **Logout**: Cierre de sesión seguro con invalidación de token y modal de confirmación.
 
 ---
 
-### 📦 Datos de Ejemplo
+## 🔧 Solución de Errores Comunes
 
-El sistema viene con datos precargados:
+### "Failed to fetch" o Error de Login
+- Asegúrate de que `oauth-server` esté corriendo (`docker logs oauth-server`).
+- Si usas Safari/Chrome, intenta limpiar caché o usar modo incógnito.
+- El sistema soporta CORS para `localhost` y `127.0.0.1`.
 
-**Medicamentos:** 15 productos en 4 categorías
-- Analgésicos (4 productos)
-- Antibióticos (4 productos)
-- Vitaminas (4 productos)
-- Ofertas (3 productos)
-
-**Sucursales:** 4 ubicaciones
-- Farmacia Centro
-- Farmacia Norte
-- Farmacia Sur
-- Farmacia Valle
-
-**Inventario:** Stock disponible en todas las sucursales
+### Pantalla en blanco en Admin
+- Se ha corregido un bug de renderizado. Si persiste, recarga con `Cmd+Shift+R` (Mac) o `Ctrl+F5` (Windows).
+- Verifica que el usuario tenga rol `ADMIN`.
 
 ---
 
-##  ️ Guía de Compras
-
-### 🏪 Paso 1: Selecciona tu Sucursal
-1. Al ingresar, elige la sucursal más cercana a tu ubicación
-2. Todas las sucursales tienen productos disponibles
-3. Puedes cambiar de sucursal en cualquier momento
-
-### 🔍 Paso 2: Encuentra tus Medicamentos
-**Navega por Categorías:**
-- 💊 **Analgesicos** - Para aliviar el dolor (Paracetamol, Ibuprofeno, etc.)
-- 🦠 **Antibioticos** - Para infecciones (bajo prescripción médica)
-- 🌿 **Vitaminas** - Suplementos nutricionales
-- 🎁 **Ofertas** - Productos con descuentos especiales
-
-**O usa la Búsqueda:**
-- Escribe el nombre del medicamento
-- Busca por laboratorio (Bayer, Pfizer, etc.)
-- Usa códigos de barras
-
-### 🛒 Paso 3: Agrega al Carrito
-1. Haz clic en "🛒 Agregar al carrito" en el producto deseado
-2. Verás una confirmación verde cuando se agregue exitosamente
-3. Los productos en oferta tienen un badge rojo "¡OFERTA!"
-
-### 💳 Paso 4: Finaliza tu Compra
-1. Ve a tu carrito haciendo clic en "🛒 Carrito"
-2. Revisa tus productos y cantidades
-3. Completa tus datos personales
-4. Confirma tu pedido
-
-## 🎯 Funcionalidades Destacadas
-
-### 🔥 Sistema de Ofertas Inteligente
-- Productos con precios menores a $5.00 automáticamente en oferta
-- Banner promocional con descuentos hasta 30%
-- Badges visuales en productos en promoción
-
-### 🎨 Experiencia Visual Mejorada
-- Iconos específicos para cada categoría
-- Animaciones suaves al cargar productos
-- Notificaciones visuales al agregar al carrito
-- Diseño moderno y amigable
-
-### 📱 Totalmente Responsivo
-- Funciona perfectamente en smartphones
-- Adaptado para tablets
-- Optimizado para computadoras de escritorio
-
-## 🌍 Disponibilidad y Cobertura
-
-### 🕒 Horario de Atención
-- **24 horas, 7 días de la semana**
-- Servicio en línea siempre disponible
-- Soporte técnico: **1800-FARMACIA**
-
-### 📞 Contacto
-- **Teléfono:** 1800-FARMACIA
-- **Email:** info@farmacia.com
-- **Soporte en línea:** Disponible 24/7
-
-##   ¿Por Qué Elegirnos?
-
-### ✅ Confianza y Seguridad
-- Medicamentos de laboratorios certificados
-- Precios transparentes sin sorpresas
-- Información detallada de cada producto
-- Compra segura con confirmación inmediata
-
-### ⚡ Rapidez y Conveniencia
-- **Búsqueda instantánea** - Encuentra lo que necesitas en segundos
-- **Carrito inteligente** - Guarda tus productos favoritos
-- **Múltiples ubicaciones** - Elige la sucursal más cercana
-- **Interfaz intuitiva** - Fácil de usar para todas las edades
-
-### 💰 Ofertas y Precios Competitivos
-- **Ofertas especiales** claramente marcadas
-- **Descuentos hasta 30%** en productos seleccionados
-- **Precios accesibles** en medicamentos básicos
-- **Productos desde $2.50** en nuestra sección de ofertas
-
-## 🛡️ Compromiso con tu Salud
-
-Tu bienestar es nuestra máxima prioridad. Por eso:
-
-- ✅ Solo trabajamos con **laboratorios reconocidos**
-- ✅ Mantenemos **inventario actualizado** en tiempo real
-- ✅ Ofrecemos **información completa** de cada medicamento
-- ✅ Garantizamos **productos auténticos** y en buen estado
-
-## 💻 Requisitos del Sistema
-
-### Para Usuarios
-- **Navegador web moderno** (Chrome, Firefox, Safari, Edge)
-- **Conexión a internet** estable
-- **JavaScript habilitado**
-
-### Dispositivos Compatibles
-- 📱 **Smartphones** (iOS y Android)
-- 💻 **Computadoras** (Windows, Mac, Linux)
-- 📱 **Tablets** (iPad, Android tablets)
-
-##   Tecnología de Vanguardia
-
-Nuestra plataforma utiliza las tecnologías más modernas para ofrecerte:
-
-- **Carga rápida** de páginas y productos
-- **Búsqueda inteligente** con resultados instantáneos
-- **Interfaz responsiva** que se adapta a tu dispositivo
-- **Notificaciones visuales** para una mejor experiencia
-- **Navegación fluida** entre categorías y productos
-
----
-
-### 🎯 ¡Comienza Ahora!
-
-**¿Listo para probar Farmacia Online?**
-
-1. 🌐 Visita **http://localhost:3000**
-2. 🏪 Selecciona tu sucursal preferida
-3. 🔍 Busca o navega por nuestros productos
-4. 🛒 Agrega al carrito lo que necesites
-5. ✅ Finaliza tu compra en minutos
-
-**Tu salud, nuestra prioridad. Tu comodidad, nuestra misión.** 💙
-
----
-
-*© 2024 Farmacia Online - Todos los derechos reservados*
-- [ ] Integración con pasarelas de pago
-- [ ] App móvil nativa
-
-## 📞 Soporte
-
-Si necesitas ayuda:
-1. Revisa los logs de Docker
-2. Verifica que todos los servicios estén corriendo
-3. Asegúrate de que los puertos no estén ocupados
-
----
-
-## ✅ ¡Todo Listo!
-
-Tu sistema de farmacia está completamente funcional y listo para usar.
-Abre http://localhost:3000 y comienza a explorar! 🚀
-## Validaciones
-Se implementaron validaciones en frontend y backend para el módulo de ventas y carrito de compras.
-
+*Desarrollado para la materia de Sistemas Distribuidos - 2026*

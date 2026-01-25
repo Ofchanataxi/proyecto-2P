@@ -1,0 +1,716 @@
+/* =====================================================
+   FARMACIA ONLINE - LOGIN PAGE (OAuth Server)
+   ===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+}
+
+.login-page {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a1628 0%, #1a2d4a 50%, #0d1f35 100%);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Efecto de partículas/estrellas de fondo */
+.login-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.15), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.1), transparent),
+        radial-gradient(2px 2px at 50px 160px, rgba(255, 255, 255, 0.12), transparent),
+        radial-gradient(2px 2px at 90px 40px, rgba(255, 255, 255, 0.08), transparent),
+        radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.1), transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(255, 255, 255, 0.06), transparent);
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    animation: twinkle 8s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes twinkle {
+    0% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* =====================================================
+   LADO IZQUIERDO - SHOWCASE VISUAL
+   ===================================================== */
+
+.login-showcase {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.showcase-content {
+    text-align: center;
+    max-width: 600px;
+    z-index: 2;
+    animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pharmacy-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.logo-icon {
+    font-size: 50px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.pharmacy-logo h1 {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #00a0e3 0%, #00d4aa 50%, #00a0e3 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.showcase-tagline {
+    font-size: 32px;
+    color: white;
+    margin-bottom: 20px;
+    font-weight: 300;
+    line-height: 1.4;
+    animation: fadeInUp 1s ease-out 0.2s both;
+}
+
+.showcase-tagline .highlight {
+    background: linear-gradient(135deg, #00a0e3, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+}
+
+.showcase-subtitle {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 50px;
+    animation: fadeInUp 1s ease-out 0.4s both;
+}
+
+/* Galería de imágenes estilo Instagram/collage */
+.image-gallery {
+    position: relative;
+    width: 400px;
+    height: 350px;
+    margin: 0 auto;
+    animation: floatAnimation 6s ease-in-out infinite;
+}
+
+@keyframes floatAnimation {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+.gallery-item {
+    position: absolute;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.gallery-item:hover {
+    transform: scale(1.05) rotate(0deg) !important;
+    z-index: 100 !important;
+    box-shadow:
+        0 35px 60px -15px rgba(0, 160, 227, 0.4),
+        0 0 0 2px rgba(0, 160, 227, 0.5);
+}
+
+.gallery-item:hover img {
+    transform: scale(1.1);
+}
+
+.gallery-item:nth-child(1) {
+    width: 220px;
+    height: 220px;
+    top: 50px;
+    left: 0;
+    transform: rotate(-8deg);
+    z-index: 3;
+    animation: float1 4s ease-in-out infinite;
+}
+
+.gallery-item:nth-child(2) {
+    width: 180px;
+    height: 180px;
+    top: 0;
+    right: 20px;
+    transform: rotate(5deg);
+    z-index: 2;
+    animation: float2 5s ease-in-out infinite 0.5s;
+}
+
+.gallery-item:nth-child(3) {
+    width: 160px;
+    height: 160px;
+    bottom: 0;
+    right: 60px;
+    transform: rotate(-3deg);
+    z-index: 1;
+    animation: float3 4.5s ease-in-out infinite 1s;
+}
+
+@keyframes float1 {
+
+    0%,
+    100% {
+        transform: rotate(-8deg) translateY(0);
+    }
+
+    50% {
+        transform: rotate(-8deg) translateY(-10px);
+    }
+}
+
+@keyframes float2 {
+
+    0%,
+    100% {
+        transform: rotate(5deg) translateY(0);
+    }
+
+    50% {
+        transform: rotate(5deg) translateY(-8px);
+    }
+}
+
+@keyframes float3 {
+
+    0%,
+    100% {
+        transform: rotate(-3deg) translateY(0);
+    }
+
+    50% {
+        transform: rotate(-3deg) translateY(-12px);
+    }
+}
+
+/* Emojis decorativos flotantes */
+.floating-emojis {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.emoji {
+    position: absolute;
+    font-size: 30px;
+    animation: emojiFloat 4s ease-in-out infinite;
+}
+
+.emoji:nth-child(1) {
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.emoji:nth-child(2) {
+    top: 20%;
+    right: 15%;
+    animation-delay: 0.5s;
+}
+
+.emoji:nth-child(3) {
+    bottom: 30%;
+    left: 5%;
+    animation-delay: 1s;
+}
+
+.emoji:nth-child(4) {
+    bottom: 15%;
+    right: 10%;
+    animation-delay: 1.5s;
+}
+
+.emoji:nth-child(5) {
+    top: 50%;
+    left: 20%;
+    animation-delay: 2s;
+}
+
+@keyframes emojiFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.7;
+    }
+
+    50% {
+        transform: translateY(-20px) scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* =====================================================
+   LADO DERECHO - FORMULARIO DE LOGIN
+   ===================================================== */
+
+.login-form-container {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    background: rgba(15, 25, 40, 0.6);
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    animation: slideInRight 0.8s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h2 {
+    font-size: 28px;
+    color: white;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.login-header p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+}
+
+/* Alertas de error y éxito */
+.error-alert {
+    background: rgba(220, 53, 69, 0.15);
+    border: 1px solid rgba(220, 53, 69, 0.4);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: shake 0.5s ease-out;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.error-alert span {
+    color: #ff6b6b;
+    font-size: 14px;
+}
+
+.error-icon {
+    font-size: 20px !important;
+}
+
+.success-alert {
+    background: rgba(40, 167, 69, 0.15);
+    border: 1px solid rgba(40, 167, 69, 0.4);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.success-alert span {
+    color: #00d4aa;
+    font-size: 14px;
+}
+
+.success-icon {
+    font-size: 20px !important;
+}
+
+/* Formulario */
+.login-form {
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.label-icon {
+    font-size: 16px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 15px;
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.form-group input:focus {
+    border-color: #00a0e3;
+    background: rgba(0, 160, 227, 0.1);
+    box-shadow: 0 0 0 4px rgba(0, 160, 227, 0.15);
+}
+
+/* Botón principal de Login */
+.login-button {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #003d7a 0%, #0051a3 50%, #00a0e3 100%);
+    background-size: 200% 200%;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 61, 122, 0.4);
+    font-family: inherit;
+}
+
+.login-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.login-button:hover::before {
+    left: 100%;
+}
+
+.login-button:hover {
+    background-position: 100% 50%;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 160, 227, 0.5);
+}
+
+.login-button:active {
+    transform: translateY(-1px);
+}
+
+.button-icon {
+    font-size: 18px;
+}
+
+/* Separador */
+.login-divider {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    gap: 15px;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.login-divider span {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Features / Beneficios */
+.login-features {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: rgba(0, 160, 227, 0.1);
+    border-color: rgba(0, 160, 227, 0.3);
+    transform: translateX(5px);
+}
+
+.feature-icon {
+    font-size: 20px;
+}
+
+.feature-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+}
+
+/* Footer del login */
+.login-footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.company-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+}
+
+.company-badge .brand {
+    font-weight: 600;
+    background: linear-gradient(135deg, #00a0e3, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN
+   ===================================================== */
+
+@media (max-width: 1024px) {
+    .login-page {
+        flex-direction: column;
+    }
+
+    .login-showcase {
+        padding: 40px 30px;
+        flex: none;
+    }
+
+    .showcase-tagline {
+        font-size: 26px;
+    }
+
+    .image-gallery {
+        width: 320px;
+        height: 280px;
+    }
+
+    .gallery-item:nth-child(1) {
+        width: 180px;
+        height: 180px;
+    }
+
+    .gallery-item:nth-child(2) {
+        width: 140px;
+        height: 140px;
+    }
+
+    .gallery-item:nth-child(3) {
+        width: 120px;
+        height: 120px;
+    }
+
+    .login-form-container {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 40px 30px;
+    }
+}
+
+@media (max-width: 640px) {
+    .pharmacy-logo h1 {
+        font-size: 32px;
+    }
+
+    .showcase-tagline {
+        font-size: 22px;
+    }
+
+    .showcase-subtitle {
+        font-size: 15px;
+    }
+
+    .image-gallery {
+        width: 280px;
+        height: 240px;
+    }
+
+    .gallery-item:nth-child(1) {
+        width: 150px;
+        height: 150px;
+        top: 30px;
+        left: 10px;
+    }
+
+    .gallery-item:nth-child(2) {
+        width: 120px;
+        height: 120px;
+        top: 10px;
+        right: 10px;
+    }
+
+    .gallery-item:nth-child(3) {
+        width: 100px;
+        height: 100px;
+        bottom: 10px;
+        right: 40px;
+    }
+
+    .floating-emojis {
+        display: none;
+    }
+
+    .login-card {
+        max-width: 100%;
+    }
+}

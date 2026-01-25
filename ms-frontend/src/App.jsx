@@ -1,92 +1,71 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { CartProvider } from './context/CartContext';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import Cart from './pages/Cart';
-import Admin from './pages/Admin';
-import Sucursales from './pages/Sucursales';
-import Login from './pages/Login';
-import MedicHome from './pages/MedicHome';
-import './App.css';
+import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Header from './components/Header'
+import Footer from './components/Footer'
+import Home from './pages/Home'
+import Cart from './pages/Cart'
+import Admin from './pages/Admin'
+import Profile from './pages/Profile'
+import Sucursales from './pages/Sucursales'
+import LoginPage, { LoginLoading, LoginError } from './pages/Login'
+import './App.css'
+import { useAuth } from "react-oidc-context";
 
 function App() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const auth = useAuth();
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  // 1. PANTALLA DE CARGA (Evita el blanco mientras verifica sesión)
+  if (auth.isLoading) {
+    return <LoginLoading />;
+  }
+
+  // 2. PANTALLA DE ERROR (Si no conecta con OAuth)
+  if (auth.error) {
+    return (
+      <LoginError
+        message={auth.error.message}
+        onRetry={() => auth.signinRedirect()}
+      />
+    );
+  }
+
+  // 3. PANTALLA DE LOGIN (Si no está autenticado)
+  if (!auth.isAuthenticated) {
+    return (
+      <LoginPage
+        onLogin={() => auth.signinRedirect()}
+        error={null}
+        isRetrying={false}
+      />
+    );
+  }
+
+  // 4. APP PRINCIPAL (Solo se renderiza si está logueado)
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <div className="app">
-            <Header />
-            <main className="main-content">
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                
-                <Route 
-                  path="/" 
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
-                      <Home />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                <Route 
-                  path="/categorias/:categoria" 
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
-                      <Home />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                <Route 
-                  path="/carrito" 
-                  element={
-                    <ProtectedRoute>
-                      <Cart />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                <Route 
-                  path="/sucursales" 
-                  element={
-                    <ProtectedRoute>
-                      <Sucursales />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                <Route 
-                  path="/admin" 
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
-                      <Admin />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                <Route 
-                  path="/medico" 
-                  element={
-                    <ProtectedRoute requiredRole="MEDICO">
-                      <MedicHome />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                <Route path="*" element={<Navigate to="/login" replace />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
-      </CartProvider>
-    </AuthProvider>
-  );
+    <Router>
+      <div className="app-container">
+        {/* Pasar auth al Header para mostrar info del usuario y logout */}
+        <Header toggleMenu={toggleMenu} auth={auth} />
+
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/categorias/:categoria" element={<Home />} />
+            <Route path="/carrito" element={<Cart />} />
+            <Route path="/sucursales" element={<Sucursales />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/perfil" element={<Profile />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
+  )
 }
 
-export default App;
+export default App

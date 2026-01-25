@@ -2,9 +2,28 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { CartProvider } from './context/CartContext.jsx'
+import { AuthProvider } from "react-oidc-context";
+
+const oidcConfig = {
+  // OAuth ahora pasa por el API Gateway
+  authority: "http://localhost:8080",
+  client_id: "farmacia-frontend",
+  redirect_uri: window.location.origin,
+  post_logout_redirect_uri: window.location.origin,
+  response_type: "code",
+  scope: "openid profile read write",
+  onSigninCallback: () => {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+};
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <AuthProvider {...oidcConfig}>
+      <CartProvider>
+        <App />
+      </CartProvider>
+    </AuthProvider>
   </StrictMode>,
 )

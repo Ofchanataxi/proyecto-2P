@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// CORRECCIÓN 1: Importar como objeto
 import inventarioService from '../services/inventarioService';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
@@ -12,7 +13,8 @@ const Sucursales = () => {
     const load = async () => {
       try {
         setLoading(true);
-        const data = await inventarioService.getAllSucursales();
+        // CORRECCIÓN 2: Usar getSucursales() en vez de getAllSucursales()
+        const data = await inventarioService.getSucursales();
         setSucursales(data || []);
       } catch (err) {
         console.error('Error cargando sucursales:', err);
@@ -31,7 +33,7 @@ const Sucursales = () => {
       <h2>📍 Nuestras Sucursales</h2>
       <div className="sucursales-grid">
         {sucursales.map(s => (
-          <div key={s.id} className="sucursal-btn" onClick={() => navigate('/')}> 
+          <div key={s.id} className="sucursal-btn" style={{ cursor: 'default' }}>
             <strong>{s.nombre}</strong>
             <small>{s.direccion}</small>
           </div>

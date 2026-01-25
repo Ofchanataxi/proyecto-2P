@@ -1,190 +1,166 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
-const Login = () => {
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [isRegister, setIsRegister] = useState(false);
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-  });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+/**
+ * LoginPage - Página de login estilo Instagram para Farmacia Online
+ * Diseño premium con imágenes de farmacia y autenticación OAuth
+ */
+function LoginPage({ onLogin, error, isRetrying }) {
+  return (
+    <div className="login-page">
+      {/* ======== LADO IZQUIERDO - SHOWCASE VISUAL ======== */}
+      <div className="login-showcase">
+        {/* Emojis flotantes decorativos */}
+        <div className="floating-emojis">
+          <span className="emoji">💊</span>
+          <span className="emoji">🏥</span>
+          <span className="emoji">💉</span>
+          <span className="emoji">🩺</span>
+          <span className="emoji">❤️</span>
+        </div>
 
-  const { login, register } = useAuth();
-  const navigate = useNavigate();
+        <div className="showcase-content">
+          {/* Logo de la farmacia */}
+          <div className="pharmacy-logo">
+            <span className="logo-icon">💊</span>
+            <h1>Farmacia Online</h1>
+          </div>
 
-  const handleRoleSelect = (role) => {
-    setSelectedRole(role);
-    setError('');
-  };
+          {/* Tagline principal */}
+          <h2 className="showcase-tagline">
+            Tu salud es nuestra <span className="highlight">prioridad</span>
+          </h2>
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+          <p className="showcase-subtitle">
+            Medicamentos, cuidado personal y atención profesional desde cualquier lugar
+          </p>
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      let result;
-      if (isRegister) {
-        result = await register(
-          formData.username,
-          formData.email,
-          formData.password,
-          selectedRole
-        );
-      } else {
-        result = await login(formData.username, formData.password);
-      }
-
-      if (result.success) {
-        // Redirigir según el rol
-        if (selectedRole === 'ADMIN') {
-          navigate('/admin');
-        } else {
-          navigate('/medico');
-        }
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError('Error al procesar la solicitud');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBack = () => {
-    setSelectedRole(null);
-    setFormData({ username: '', email: '', password: '' });
-    setError('');
-    setIsRegister(false);
-  };
-
-  if (!selectedRole) {
-    return (
-      <div className="login-container">
-        <div className="login-card">
-          <h1>Farmacia Online</h1>
-          <p className="subtitle">Selecciona tu tipo de usuario</p>
-          
-          <div className="role-buttons">
-            <button
-              className="role-button admin"
-              onClick={() => handleRoleSelect('ADMIN')}
-            >
-              <i className="icon">👨‍💼</i>
-              <h3>Administrador</h3>
-              <p>Gestión completa del sistema</p>
-            </button>
-
-            <button
-              className="role-button medico"
-              onClick={() => handleRoleSelect('MEDICO')}
-            >
-              <i className="icon">👨‍⚕️</i>
-              <h3>Médico</h3>
-              <p>Realizar compras de medicamentos</p>
-            </button>
+          {/* Galería de imágenes estilo Instagram */}
+          <div className="image-gallery">
+            <div className="gallery-item">
+              <img src="/pharmacy-1.png" alt="Interior de farmacia moderna" />
+            </div>
+            <div className="gallery-item">
+              <img src="/pharmacy-2.png" alt="Atención farmacéutica profesional" />
+            </div>
+            <div className="gallery-item">
+              <img src="/pharmacy-3.png" alt="Servicio al cliente" />
+            </div>
           </div>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="login-container">
-      <div className="login-card">
-        <button className="back-button" onClick={handleBack}>
-          ← Volver
-        </button>
-
-        <h1>{isRegister ? 'Registro' : 'Iniciar Sesión'}</h1>
-        <p className="subtitle">
-          {selectedRole === 'ADMIN' ? 'Administrador' : 'Médico'}
-        </p>
-
-        {error && <div className="error-message">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="username">Usuario</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              required
-              placeholder="Ingresa tu usuario"
-            />
+      {/* ======== LADO DERECHO - FORMULARIO DE LOGIN ======== */}
+      <div className="login-form-container">
+        <div className="login-card">
+          {/* Header del formulario */}
+          <div className="login-header">
+            <h2>Iniciar Sesión</h2>
+            <p>Accede a tu cuenta para gestionar tus pedidos</p>
           </div>
 
-          {isRegister && (
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                placeholder="correo@ejemplo.com"
-              />
+          {/* Información de OAuth */}
+          <div className="oauth-info">
+            <span className="oauth-info-icon">🔐</span>
+            <p>
+              Utilizamos autenticación segura OAuth 2.0 para proteger tu información
+            </p>
+          </div>
+
+          {/* Mostrar error si existe */}
+          {error && (
+            <div className="login-error-inline" style={{
+              background: 'rgba(220, 53, 69, 0.1)',
+              border: '1px solid rgba(220, 53, 69, 0.3)',
+              borderRadius: '10px',
+              padding: '15px',
+              marginBottom: '20px',
+              textAlign: 'center'
+            }}>
+              <p style={{ color: '#ff6b6b', margin: 0, fontSize: '14px' }}>
+                ⚠️ {error}
+              </p>
             </div>
           )}
 
-          <div className="form-group">
-            <label htmlFor="password">Contraseña</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-              placeholder="Ingresa tu contraseña"
-            />
+          {/* Botón principal de Login */}
+          <button
+            className="login-button"
+            onClick={onLogin}
+            disabled={isRetrying}
+          >
+            <span className="login-button-icon">🔑</span>
+            {isRetrying ? 'Conectando...' : 'Iniciar Sesión con OAuth'}
+          </button>
+
+          {/* Separador */}
+          <div className="login-divider">
+            <span>Beneficios</span>
           </div>
 
-          <button
-            type="submit"
-            className="submit-button"
-            disabled={loading}
-          >
-            {loading ? 'Procesando...' : isRegister ? 'Registrarse' : 'Iniciar Sesión'}
-          </button>
-        </form>
+          {/* Features / Beneficios */}
+          <div className="login-features">
+            <div className="feature-item">
+              <span className="feature-icon">🛒</span>
+              <span className="feature-text">Gestiona tu carrito de compras</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">📦</span>
+              <span className="feature-text">Seguimiento de tus pedidos en tiempo real</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">💰</span>
+              <span className="feature-text">Ofertas y descuentos exclusivos</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">🏪</span>
+              <span className="feature-text">Múltiples sucursales a tu servicio</span>
+            </div>
+          </div>
 
-        <div className="toggle-form">
-          <p>
-            {isRegister ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
-            <button
-              type="button"
-              onClick={() => {
-                setIsRegister(!isRegister);
-                setError('');
-              }}
-              className="link-button"
-            >
-              {isRegister ? 'Iniciar Sesión' : 'Registrarse'}
-            </button>
-          </p>
+          {/* Footer del login */}
+          <div className="login-footer">
+            <p>Al iniciar sesión, aceptas nuestros términos y condiciones</p>
+            <div className="footer-links">
+              <a href="#">Términos de uso</a>
+              <a href="#">Política de privacidad</a>
+              <a href="#">Ayuda</a>
+            </div>
+            <div className="company-badge">
+              <span>Farmacia Online</span> © 2026
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default Login;
+/**
+ * LoginLoading - Pantalla de carga mientras se verifica la sesión
+ */
+export function LoginLoading() {
+  return (
+    <div className="login-loading">
+      <div className="loading-spinner"></div>
+      <p className="loading-text">Cargando Farmacia Online...</p>
+    </div>
+  );
+}
+
+/**
+ * LoginError - Pantalla de error de autenticación
+ */
+export function LoginError({ message, onRetry }) {
+  return (
+    <div className="login-error">
+      <span className="error-icon">⚠️</span>
+      <h2 className="error-title">Error de Autenticación</h2>
+      <p className="error-message">{message}</p>
+      <button className="retry-button" onClick={onRetry}>
+        Reintentar Login
+      </button>
+    </div>
+  );
+}
+
+export default LoginPage;

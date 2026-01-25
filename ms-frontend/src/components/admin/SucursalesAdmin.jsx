@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import inventarioService from '../../services/inventarioService';
-import './AdminTables.css';
+import Modal from '../Modal';
+import '../../pages/SucursalesAdmin.css';
+import '../admin/AdminTables.css';
 
 const SucursalesAdmin = () => {
   const [sucursales, setSucursales] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    nombre: '',
-    direccion: '',
-  });
-  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState({ nombre: '', direccion: '' });
+  const [loading, setLoading] = useState(false);
+  const [modalInfo, setModalInfo] = useState({ isOpen: false, message: '', type: 'success' });
+  const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null });
 
   useEffect(() => {
     loadSucursales();
@@ -18,127 +18,153 @@ const SucursalesAdmin = () => {
   const loadSucursales = async () => {
     try {
       setLoading(true);
-      const data = await inventarioService.getAllSucursales();
-      setSucursales(data);
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error al cargar sucursales');
+      const data = await inventarioService.getSucursales();
+      setSucursales(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error("Error loading sucursales", e);
     } finally {
       setLoading(false);
     }
   };
 
+  const showModal = (message, type = 'success') => {
+    setModalInfo({ isOpen: true, message, type });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editingId) {
-        await inventarioService.updateSucursal(editingId, formData);
-        alert('Sucursal actualizada');
-      } else {
-        await inventarioService.createSucursal(formData);
-        alert('Sucursal creada');
-      }
-      resetForm();
+      await inventarioService.createSucursal(form);
+      setForm({ nombre: '', direccion: '' });
       loadSucursales();
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error: ' + (error.response?.data?.message || error.message));
+      showModal('✅ Sucursal creada correctamente', 'success');
+    } catch (e) {
+      console.error("Error creating sucursal", e);
+      showModal('❌ Error al crear la sucursal', 'error');
     }
   };
 
-  const handleEdit = (sucursal) => {
-    setFormData({
-      nombre: sucursal.nombre,
-      direccion: sucursal.direccion,
-    });
-    setEditingId(sucursal.id);
+  const handleDeleteClick = (id) => {
+    setConfirmDelete({ show: true, id });
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar esta sucursal?')) return;
+  const handleDeleteConfirm = async () => {
     try {
-      await inventarioService.deleteSucursal(id);
-      alert('Sucursal eliminada');
+      await inventarioService.deleteSucursal(confirmDelete.id);
       loadSucursales();
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error al eliminar sucursal');
+      showModal('✅ Sucursal eliminada correctamente', 'success');
+    } catch (e) {
+      console.error(e);
+      showModal('❌ Error al eliminar la sucursal', 'error');
     }
+    setConfirmDelete({ show: false, id: null });
   };
-
-  const resetForm = () => {
-    setFormData({ nombre: '', direccion: '' });
-    setEditingId(null);
-  };
-
-  if (loading) {
-    return <div className="loading">Cargando...</div>;
-  }
 
   return (
-    <div className="admin-section">
-      <h2>📍 Gestión de Sucursales</h2>
+    <div className="admin-content-inner">
+      <Modal
+        isOpen={modalInfo.isOpen}
+        onClose={() => setModalInfo({ ...modalInfo, isOpen: false })}
+        message={modalInfo.message}
+        type={modalInfo.type}
+      />
 
-      <form onSubmit={handleSubmit} className="admin-form">
-        <div className="form-grid">
-          <input
-            type="text"
-            placeholder="Nombre de la sucursal *"
-            value={formData.nombre}
-            onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Dirección *"
-            value={formData.direccion}
-            onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
-            required
-          />
+      <Modal
+        isOpen={confirmDelete.show}
+        onClose={() => setConfirmDelete({ show: false, id: null })}
+        onConfirm={handleDeleteConfirm}
+        message="¿Estás seguro de eliminar esta sucursal? Esta acción no se puede deshacer."
+        type="confirm"
+      />
 
+      <div className="admin-split-layout">
+        <div className="form-card">
+          <h3>➕ Nueva Sucursal</h3>
+          <form onSubmit={handleSubmit} className="admin-form">
+            <div className="form-group">
+              <label>Nombre de la Sucursal *</label>
+              <input
+                placeholder="Ej: Farmacia Centro"
+                value={form.nombre}
+                onChange={e => setForm({ ...form, nombre: e.target.value })}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Dirección *</label>
+              <input
+                placeholder="Ej: Av. Amazonas y Naciones Unidas"
+                value={form.direccion}
+                onChange={e => setForm({ ...form, direccion: e.target.value })}
+                required
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="btn-save">Crear Sucursal</button>
+            </div>
+          </form>
         </div>
-        <div className="form-actions">
-          <button type="submit" className="btn-submit">
-            {editingId ? '✏️ Actualizar' : '➕ Crear'}
-          </button>
-          {editingId && (
-            <button type="button" onClick={resetForm} className="btn-cancel">
-              ❌ Cancelar
-            </button>
-          )}
+
+        <div className="illustration-card">
+          <div className="illustration-placeholder">
+            <span style={{ fontSize: '60px' }}>📍</span>
+            <h3>Gestiona tus Puntos de Venta</h3>
+            <p>Mantén actualizada la red de farmacias para que tus clientes siempre encuentren lo que buscan.</p>
+            <ul className="stats-mini">
+              <li>🏢 {sucursales.length} Sucursales</li>
+            </ul>
+          </div>
         </div>
-      </form>
+      </div>
 
-      <div className="table-container">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Dirección</th>
+      <div className="list-card" style={{ marginTop: '30px' }}>
+        <h3>📋 Lista de Sucursales Actuales</h3>
+        <p style={{ marginBottom: '15px', color: '#666' }}>
+          Total de sucursales activas: <strong>{sucursales.length}</strong>
+        </p>
 
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sucursales.map(suc => (
-              <tr key={suc.id}>
-                <td>{suc.id}</td>
-                <td>{suc.nombre}</td>
-                <td>{suc.direccion}</td>
-
-                <td className="actions">
-                  <button onClick={() => handleEdit(suc)} className="btn-edit">
-                    ✏️
-                  </button>
-                  <button onClick={() => handleDelete(suc.id)} className="btn-delete">
-                    🗑️
-                  </button>
-                </td>
+        {loading ? <div className="loading">Cargando datos...</div> : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {sucursales.map(s => (
+                <tr key={s.id}>
+                  <td><strong>#{s.id}</strong></td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontSize: '20px' }}>🏥</span>
+                      {s.nombre}
+                    </div>
+                  </td>
+                  <td>{s.direccion}</td>
+                  <td>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteClick(s.id)}
+                      title="Eliminar"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {sucursales.length === 0 && (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '40px' }}>
+                    No hay sucursales registradas. ¡Añade la primera!
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

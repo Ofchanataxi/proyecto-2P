@@ -13,6 +13,12 @@
   font-size: 14px;
 }
 
+.header-top .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .header-info {
   display: flex;
   justify-content: flex-end;
@@ -23,6 +29,190 @@
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* User Section Styles */
+.user-section {
+  position: relative;
+}
+
+.user-info-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-info-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.user-avatar {
+  font-size: 20px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: white;
+}
+
+.user-role {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  background: rgba(0, 212, 170, 0.4);
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-top: 2px;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  margin-left: 4px;
+  transition: transform 0.3s;
+}
+
+.user-info-btn:hover .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  min-width: 180px;
+  z-index: 1001;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.dropdown-header strong {
+  display: block;
+  color: #003d7a;
+  font-size: 14px;
+}
+
+.dropdown-header small {
+  color: #666;
+  font-size: 12px;
+}
+
+.user-dropdown hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 8px 0;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #ff4757 0%, #c0392b 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, #e84118 0%, #a93226 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+}
+
+/* Dropdown link button */
+.dropdown-link {
+  width: 100%;
+  padding: 10px 15px;
+  background: #f8fafc;
+  color: #334155;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropdown-link:hover {
+  background: #e2e8f0;
+  color: #003d7a;
+}
+
+/* Profile link - highlighted style */
+.dropdown-link.profile-link {
+  background: linear-gradient(135deg, #003d7a 0%, #0051a3 100%);
+  color: white;
+  font-weight: 600;
+}
+
+.dropdown-link.profile-link:hover {
+  background: linear-gradient(135deg, #0051a3 0%, #0066cc 100%);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 61, 122, 0.3);
+}
+
+/* Header logout button (in main header) */
+.header-logout-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ff4757 0%, #c0392b 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.header-logout-btn:hover {
+  background: linear-gradient(135deg, #e84118 0%, #a93226 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
 }
 
 .header-main {
@@ -39,6 +229,7 @@
   text-decoration: none;
   color: #003d7a;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .logo h1 {
@@ -87,16 +278,8 @@
   align-items: center;
 }
 
-.user-info {
-  color: #333;
-  font-weight: 500;
-  padding: 8px 12px;
-  background: #f0f0f0;
-  border-radius: 20px;
-  font-size: 14px;
-}
-
-.header-link, .cart-link {
+.header-link,
+.cart-link {
   text-decoration: none;
   color: #333;
   font-weight: 500;
@@ -108,26 +291,8 @@
   transition: all 0.3s;
 }
 
-.logout-btn {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.logout-btn:hover {
-  background: #c82333;
-  transform: translateY(-2px);
-}
-
-.header-link:hover, .cart-link:hover {
+.header-link:hover,
+.cart-link:hover {
   background: #f0f0f0;
   color: #003d7a;
 }

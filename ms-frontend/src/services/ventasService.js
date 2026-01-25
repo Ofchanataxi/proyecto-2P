@@ -1,43 +1,62 @@
 import axios from 'axios';
+import { User } from 'oidc-client-ts';
 
-// Apunta al API Gateway (puerto 8080) que redirige a ms-ventas internamente
 const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
+
+// Función auxiliar para obtener headers con Token
+const getAuthHeaders = () => {
+  const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:8080:farmacia-frontend");
+  if (!oidcStorage) return {};
+  const user = User.fromStorageString(oidcStorage);
+  return {
+    'Authorization': `Bearer ${user.access_token}`,
+    'Content-Type': 'application/json'
+  };
+};
 
 const ventasAPI = axios.create({
   baseURL: `${API_GATEWAY}/api/ventas`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+});
+
+// Interceptor para inyectar token en cada petición
+ventasAPI.interceptors.request.use(config => {
+  const headers = getAuthHeaders();
+  if (headers.Authorization) {
+    config.headers.Authorization = headers.Authorization;
+  }
+  return config;
 });
 
 export const ventasService = {
-  // Crear una nueva venta
-  createVenta: async (venta) => {
-    const response = await ventasAPI.post('', venta);
-    return response.data;
+  createVenta: async (ventaData) => {
+    try {
+      const response = await ventasAPI.post('', ventaData);
+      return response.data;
+    } catch (error) {
+      console.error('Error en createVenta:', error);
+      throw error;
+    }
   },
 
-  // Obtener todas las ventas (si se implementa en el backend)
-  getAllVentas: async () => {
+  getVentas: async () => {
     try {
       const response = await ventasAPI.get('');
       return response.data;
     } catch (error) {
-      console.error('Endpoint no disponible:', error);
+      console.error('Error en getVentas:', error);
       return [];
     }
   },
 
-  // Obtener venta por ID (si se implementa en el backend)
   getVentaById: async (id) => {
     try {
       const response = await ventasAPI.get(`/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Endpoint no disponible:', error);
-      return null;
+      console.error('Error en getVentaById:', error);
+      throw error;
     }
-  },
+  }
 };
 
 export default ventasService;
