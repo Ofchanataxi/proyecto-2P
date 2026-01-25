@@ -18,13 +18,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
-    radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.15), transparent),
-    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.1), transparent),
-    radial-gradient(2px 2px at 50px 160px, rgba(255,255,255,0.12), transparent),
-    radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.08), transparent),
-    radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.1), transparent),
-    radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.06), transparent);
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.15), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.1), transparent),
+    radial-gradient(2px 2px at 50px 160px, rgba(255, 255, 255, 0.12), transparent),
+    radial-gradient(2px 2px at 90px 40px, rgba(255, 255, 255, 0.08), transparent),
+    radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.1), transparent),
+    radial-gradient(2px 2px at 160px 120px, rgba(255, 255, 255, 0.06), transparent);
   background-repeat: repeat;
   background-size: 200px 200px;
   animation: twinkle 8s ease-in-out infinite alternate;
@@ -32,8 +32,13 @@
 }
 
 @keyframes twinkle {
-  0% { opacity: 0.5; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 /* =====================================================
@@ -63,6 +68,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -84,8 +90,15 @@
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .pharmacy-logo h1 {
@@ -100,8 +113,15 @@
 }
 
 @keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .showcase-tagline {
@@ -138,15 +158,22 @@
 }
 
 @keyframes floatAnimation {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
 }
 
 .gallery-item {
   position: absolute;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.1);
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -162,7 +189,7 @@
 .gallery-item:hover {
   transform: scale(1.05) rotate(0deg) !important;
   z-index: 100 !important;
-  box-shadow: 
+  box-shadow:
     0 35px 60px -15px rgba(0, 160, 227, 0.4),
     0 0 0 2px rgba(0, 160, 227, 0.5);
 }
@@ -202,18 +229,39 @@
 }
 
 @keyframes float1 {
-  0%, 100% { transform: rotate(-8deg) translateY(0); }
-  50% { transform: rotate(-8deg) translateY(-10px); }
+
+  0%,
+  100% {
+    transform: rotate(-8deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(-8deg) translateY(-10px);
+  }
 }
 
 @keyframes float2 {
-  0%, 100% { transform: rotate(5deg) translateY(0); }
-  50% { transform: rotate(5deg) translateY(-8px); }
+
+  0%,
+  100% {
+    transform: rotate(5deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(5deg) translateY(-8px);
+  }
 }
 
 @keyframes float3 {
-  0%, 100% { transform: rotate(-3deg) translateY(0); }
-  50% { transform: rotate(-3deg) translateY(-12px); }
+
+  0%,
+  100% {
+    transform: rotate(-3deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(-3deg) translateY(-12px);
+  }
 }
 
 /* Emojis decorativos flotantes */
@@ -230,19 +278,46 @@
   animation: emojiFloat 4s ease-in-out infinite;
 }
 
-.emoji:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
-.emoji:nth-child(2) { top: 20%; right: 15%; animation-delay: 0.5s; }
-.emoji:nth-child(3) { bottom: 30%; left: 5%; animation-delay: 1s; }
-.emoji:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 1.5s; }
-.emoji:nth-child(5) { top: 50%; left: 20%; animation-delay: 2s; }
+.emoji:nth-child(1) {
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.emoji:nth-child(2) {
+  top: 20%;
+  right: 15%;
+  animation-delay: 0.5s;
+}
+
+.emoji:nth-child(3) {
+  bottom: 30%;
+  left: 5%;
+  animation-delay: 1s;
+}
+
+.emoji:nth-child(4) {
+  bottom: 15%;
+  right: 10%;
+  animation-delay: 1.5s;
+}
+
+.emoji:nth-child(5) {
+  top: 50%;
+  left: 20%;
+  animation-delay: 2s;
+}
 
 @keyframes emojiFloat {
-  0%, 100% { 
-    transform: translateY(0) scale(1); 
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
     opacity: 0.7;
   }
-  50% { 
-    transform: translateY(-20px) scale(1.2); 
+
+  50% {
+    transform: translateY(-20px) scale(1.2);
     opacity: 1;
   }
 }
@@ -270,6 +345,7 @@
     opacity: 0;
     transform: translateX(50px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -350,7 +426,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 0.5s ease;
 }
 
@@ -385,7 +461,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
 }
 
 .login-divider span {
@@ -487,36 +563,36 @@
   .login-page {
     flex-direction: column;
   }
-  
+
   .login-showcase {
     padding: 40px 30px;
     flex: none;
   }
-  
+
   .showcase-tagline {
     font-size: 26px;
   }
-  
+
   .image-gallery {
     width: 320px;
     height: 280px;
   }
-  
+
   .gallery-item:nth-child(1) {
     width: 180px;
     height: 180px;
   }
-  
+
   .gallery-item:nth-child(2) {
     width: 140px;
     height: 140px;
   }
-  
+
   .gallery-item:nth-child(3) {
     width: 120px;
     height: 120px;
   }
-  
+
   .login-form-container {
     border-left: none;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -528,45 +604,45 @@
   .pharmacy-logo h1 {
     font-size: 32px;
   }
-  
+
   .showcase-tagline {
     font-size: 22px;
   }
-  
+
   .showcase-subtitle {
     font-size: 15px;
   }
-  
+
   .image-gallery {
     width: 280px;
     height: 240px;
   }
-  
+
   .gallery-item:nth-child(1) {
     width: 150px;
     height: 150px;
     top: 30px;
     left: 10px;
   }
-  
+
   .gallery-item:nth-child(2) {
     width: 120px;
     height: 120px;
     top: 10px;
     right: 10px;
   }
-  
+
   .gallery-item:nth-child(3) {
     width: 100px;
     height: 100px;
     bottom: 10px;
     right: 40px;
   }
-  
+
   .floating-emojis {
     display: none;
   }
-  
+
   .login-card {
     max-width: 100%;
   }
@@ -596,7 +672,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {

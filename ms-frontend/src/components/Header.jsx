@@ -3,7 +3,7 @@ import { useAuth } from 'react-oidc-context';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import './Header.css';
-import Modal from './Modal'; // Importar Modal reutilizable
+import Modal from './Modal';
 
 const Header = () => {
   const auth = useAuth();

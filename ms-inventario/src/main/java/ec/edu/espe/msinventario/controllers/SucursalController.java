@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/sucursales")
-@CrossOrigin(origins = "*")
 public class SucursalController {
 
     @Autowired
@@ -48,7 +47,8 @@ public class SucursalController {
         return ResponseEntity.notFound().build();
     }
 
-    // Opcional: Eliminar sucursal (Ten cuidado si ya tiene inventario asignado, podría dar error de FK en BD)
+    // Opcional: Eliminar sucursal (Ten cuidado si ya tiene inventario asignado,
+    // podría dar error de FK en BD)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         Optional<Sucursal> opcional = service.buscarPorId(id);

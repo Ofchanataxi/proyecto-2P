@@ -152,7 +152,7 @@ services:
       - postgres-db
     restart: unless-stopped
 
-# --- VOLÚMENES (AQUÍ ESTABA EL ERROR) ---
+# --- VOLÚMENES ---
 volumes:
   mysql_data:
-  postgres_data:  # <--- FALTABA ESTO
+  postgres_data:

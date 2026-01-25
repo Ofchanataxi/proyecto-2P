@@ -48,3 +48,14 @@ spring:
           uri: ${VENTAS_URI}
           predicates:
             - Path=/api/ventas/**
+
+        - id: ms-ventas-detalles
+          uri: ${VENTAS_URI}
+          predicates:
+            - Path=/api/detalle-ventas/**
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.netty.http.client: DEBUG

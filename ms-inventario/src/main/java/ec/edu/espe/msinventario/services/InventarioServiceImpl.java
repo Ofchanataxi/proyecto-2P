@@ -8,6 +8,7 @@ import ec.edu.espe.msinventario.repositories.SucursalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,7 +32,8 @@ public class InventarioServiceImpl implements InventarioService {
             throw new RuntimeException("Medicamento no encontrado en el catálogo externo");
         }
 
-        // 2. Verificar si ya existe inventario para sumar stock en lugar de duplicar registro
+        // 2. Verificar si ya existe inventario para sumar stock en lugar de duplicar
+        // registro
         Optional<Inventario> existente = repository.findBySucursalAndMedicamentoId(
                 inventario.getSucursal(), inventario.getMedicamentoId());
 
@@ -44,6 +46,18 @@ public class InventarioServiceImpl implements InventarioService {
         return repository.save(inventario);
     }
 
+    @Override
+    public Inventario actualizarStock(Long id, Integer nuevaCantidad) {
+        Optional<Inventario> inventarioOpt = repository.findById(id);
+        if (inventarioOpt.isEmpty()) {
+            throw new RuntimeException("Inventario no encontrado con ID: " + id);
+        }
+
+        Inventario inventario = inventarioOpt.get();
+        inventario.setCantidad(nuevaCantidad);
+        return repository.save(inventario);
+    }
+
     // Implementar resto de métodos CRUD (listar, buscarPorId)
     @Override
     public Optional<Inventario> buscarPorId(Long id) {
@@ -53,7 +67,8 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     public Optional<Inventario> buscarPorSucursalYMedicamento(Long sucursalId, Long medicamentoId) {
         // Buscamos la entidad sucursal primero
-        Optional<ec.edu.espe.msinventario.models.entities.Sucursal> sucursalOpt = sucursalRepository.findById(sucursalId);
+        Optional<ec.edu.espe.msinventario.models.entities.Sucursal> sucursalOpt = sucursalRepository
+                .findById(sucursalId);
         if (sucursalOpt.isEmpty()) {
             return Optional.empty();
         }
@@ -62,12 +77,14 @@ public class InventarioServiceImpl implements InventarioService {
 
     @Override
     public void descontarStock(Long sucursalId, Long medicamentoId, Integer cantidad) {
-        Optional<ec.edu.espe.msinventario.models.entities.Sucursal> sucursalOpt = sucursalRepository.findById(sucursalId);
+        Optional<ec.edu.espe.msinventario.models.entities.Sucursal> sucursalOpt = sucursalRepository
+                .findById(sucursalId);
         if (sucursalOpt.isEmpty()) {
             throw new RuntimeException("Sucursal no encontrada: " + sucursalId);
         }
 
-        Optional<Inventario> inventarioOpt = repository.findBySucursalAndMedicamentoId(sucursalOpt.get(), medicamentoId);
+        Optional<Inventario> inventarioOpt = repository.findBySucursalAndMedicamentoId(sucursalOpt.get(),
+                medicamentoId);
         if (inventarioOpt.isEmpty()) {
             throw new RuntimeException("No hay inventario para este producto en la sucursal indicada");
         }
@@ -80,5 +97,20 @@ public class InventarioServiceImpl implements InventarioService {
 
         inventario.setCantidad(inventario.getCantidad() - cantidad);
         repository.save(inventario);
+    }
+
+    @Override
+    public List<Inventario> listarTodos() {
+        return repository.findAll();
+    }
+
+    @Override
+    public List<Inventario> listarPorSucursal(Long sucursalId) {
+        Optional<ec.edu.espe.msinventario.models.entities.Sucursal> sucursalOpt = sucursalRepository
+                .findById(sucursalId);
+        if (sucursalOpt.isEmpty()) {
+            return List.of();
+        }
+        return repository.findBySucursal(sucursalOpt.get());
     }
 }

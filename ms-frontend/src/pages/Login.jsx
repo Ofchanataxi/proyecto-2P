@@ -83,8 +83,8 @@ function LoginPage({ onLogin, error, isRetrying }) {
           )}
 
           {/* Botón principal de Login */}
-          <button 
-            className="login-button" 
+          <button
+            className="login-button"
             onClick={onLogin}
             disabled={isRetrying}
           >
