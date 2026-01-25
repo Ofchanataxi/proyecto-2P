@@ -64,11 +64,11 @@ const Header = () => {
         await auth.removeUser();
       }
 
-      // Redirigir al endpoint de logout del servidor OAuth
-      window.location.href = 'http://localhost:9000/logout';
+      // Redirigir al endpoint de logout a través del Gateway
+      window.location.href = 'http://localhost:8080/logout';
     } catch (error) {
       console.error('Error logout:', error);
-      window.location.href = 'http://localhost:9000/logout';
+      window.location.href = 'http://localhost:8080/logout';
     }
   };
 

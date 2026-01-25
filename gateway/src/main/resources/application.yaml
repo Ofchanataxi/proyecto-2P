@@ -6,11 +6,11 @@ spring:
     name: gateway
   cloud:
     gateway:
-      # 1. Configuración Global de CORS (La que manda)
+      # 1. Configuración Global de CORS
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:3000"
+            allowedOriginPatterns: "*"
             allowedMethods:
               - GET
               - POST
@@ -26,6 +26,14 @@ spring:
 
       # 3. Rutas
       routes:
+        # OAuth Server - Autenticación
+        - id: oauth-server
+          uri: ${OAUTH_URI:http://oauth-server:9000}
+          predicates:
+            - Path=/oauth2/**, /.well-known/**, /login, /logout, /usuarios/**
+          filters:
+            - PreserveHostHeader
+
         - id: ms-catalogo
           uri: ${CATALOGO_URI}
           predicates:

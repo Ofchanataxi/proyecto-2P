@@ -5,7 +5,7 @@ const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
 
 // Función para obtener el token de la sesión actual
 const getAuthHeaders = () => {
-  const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:9000:farmacia-frontend");
+  const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:8080:farmacia-frontend");
   if (!oidcStorage) return {};
   const user = User.fromStorageString(oidcStorage);
   return {

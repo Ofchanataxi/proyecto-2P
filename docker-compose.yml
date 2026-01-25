@@ -105,6 +105,7 @@ services:
       - CATALOGO_URI=http://ms-catalogo:8081
       - INVENTARIO_URI=http://ms-inventario:8082
       - VENTAS_URI=http://ms-ventas:8083
+      - OAUTH_URI=http://oauth-server:9000
       - LOG_LEVEL=DEBUG
     depends_on:
       ms-catalogo:
@@ -112,6 +113,8 @@ services:
       ms-inventario:
         condition: service_started
       ms-ventas:
+        condition: service_started
+      oauth-server:
         condition: service_started
     restart: unless-stopped
     healthcheck:

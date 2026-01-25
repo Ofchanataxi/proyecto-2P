@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { User } from 'oidc-client-ts';
 
-// Directo al oauth-server, no a través del gateway porque es un endpoint interno del auth server
-// AUNQUE idealmente debería ser por gateway, pero el oauth-server está en puerto 9000
-const OAUTH_SERVER = 'http://localhost:9000';
+// Todas las peticiones pasan por el API Gateway
+const API_GATEWAY = 'http://localhost:8080';
 
 const getAuthHeaders = () => {
-    const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:9000:farmacia-frontend");
+    // Ahora busca con la URL del gateway
+    const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:8080:farmacia-frontend");
     if (!oidcStorage) return {};
     const user = User.fromStorageString(oidcStorage);
     return {
@@ -16,7 +16,7 @@ const getAuthHeaders = () => {
 };
 
 const usuarioAPI = axios.create({
-    baseURL: OAUTH_SERVER,
+    baseURL: API_GATEWAY,
 });
 
 usuarioAPI.interceptors.request.use(config => {
