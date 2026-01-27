@@ -80,6 +80,7 @@ public class SecurityConfig {
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("*"));
                 configuration.setAllowCredentials(true);
+                configuration.setMaxAge(3600L); // Cache preflight por 1 hora
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", configuration);
@@ -169,7 +170,7 @@ public class SecurityConfig {
                                                 .logoutRequestMatcher(
                                                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher(
                                                                                 "/logout", "GET"))
-                                                .logoutSuccessUrl("http://localhost:3000")
+                                                .logoutSuccessUrl("http://34.130.207.184:3000")
                                                 .invalidateHttpSession(true)
                                                 .clearAuthentication(true)
                                                 .deleteCookies("JSESSIONID")
@@ -186,12 +187,17 @@ public class SecurityConfig {
                                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                                // URIs de desarrollo
                                 .redirectUri("http://localhost:3000")
                                 .redirectUri("http://localhost:3000/")
                                 .redirectUri("http://127.0.0.1:3000")
                                 .redirectUri("http://127.0.0.1:3000/")
+                                // URIs de producción (IP público)
+                                .redirectUri("http://34.130.207.184:3000")
+                                .redirectUri("http://34.130.207.184:3000/")
                                 .postLogoutRedirectUri("http://localhost:3000")
                                 .postLogoutRedirectUri("http://127.0.0.1:3000")
+                                .postLogoutRedirectUri("http://34.130.207.184:3000")
                                 .scope(OidcScopes.OPENID)
                                 .scope(OidcScopes.PROFILE)
                                 .scope("read")
@@ -208,7 +214,7 @@ public class SecurityConfig {
         @Bean
         public AuthorizationServerSettings authorizationServerSettings() {
                 return AuthorizationServerSettings.builder()
-                                .issuer("http://localhost:9000")
+                                .issuer("http://34.130.207.184:9000")
                                 .build();
         }
 
