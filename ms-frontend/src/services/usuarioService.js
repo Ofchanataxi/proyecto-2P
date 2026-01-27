@@ -2,11 +2,11 @@ import axios from 'axios';
 import { User } from 'oidc-client-ts';
 
 // Todas las peticiones pasan por el API Gateway
-const API_GATEWAY = 'http://localhost:8080';
+const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://34.130.207.184:8080';
 
 const getAuthHeaders = () => {
     // Ahora busca con la URL del gateway
-    const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:8080:farmacia-frontend");
+    const oidcStorage = sessionStorage.getItem(`oidc.user::farmacia-frontend`);
     if (!oidcStorage) return {};
     const user = User.fromStorageString(oidcStorage);
     return {

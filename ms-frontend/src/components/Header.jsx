@@ -65,10 +65,9 @@ const Header = () => {
       }
 
       // Redirigir al endpoint de logout a través del Gateway
-      window.location.href = 'http://localhost:8080/logout';
+      window.location.href = `${import.meta.env.VITE_API_GATEWAY}/logout`;
     } catch (error) {
       console.error('Error logout:', error);
-      window.location.href = 'http://localhost:8080/logout';
     }
   };
 

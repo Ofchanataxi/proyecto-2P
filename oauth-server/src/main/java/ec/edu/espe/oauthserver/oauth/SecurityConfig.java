@@ -72,7 +72,11 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000"));
+                configuration.setAllowedOrigins(Arrays.asList(
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://34.130.207.184:3000"
+));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("*"));
                 configuration.setAllowCredentials(true);
@@ -143,7 +147,16 @@ public class SecurityConfig {
                                                 // Permitir acceso a recursos estáticos sin autenticación
                                                 .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.ico",
                                                                 "/error")
-                                                .permitAll()
+						.permitAll()
+
+						//Permitir endpoints OIDC/Oauth sin autenticación
+						.requestMatchers(
+  						  "/.well-known/**",
+    						  "/oauth2/jwks",
+    						  "/oauth2/token",
+   						  "/oauth2/introspect",
+   						  "/oauth2/revoke"
+						).permitAll()
                                                 .anyRequest().authenticated())
                                 // ACTIVAR CORS AQUÍ
                                 .cors(Customizer.withDefaults())

@@ -17,7 +17,10 @@ const Admin = () => {
   useEffect(() => {
     // Obtener token
     try {
-      const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:8080:farmacia-frontend");
+      const OIDC_AUTHORITY = import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000";
+      const OIDC_KEY = "oidc.user:" + OIDC_AUTHORITY + ":farmacia-frontend";
+      const oidcStorage = sessionStorage.getItem(OIDC_KEY);
+
       if (oidcStorage) {
         const user = User.fromStorageString(oidcStorage);
         setToken(user.access_token);

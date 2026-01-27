@@ -7,7 +7,7 @@ import { AuthProvider } from "react-oidc-context";
 
 const oidcConfig = {
   // OAuth ahora pasa por el API Gateway
-  authority: "http://localhost:8080",
+  authority: (import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000"),
   client_id: "farmacia-frontend",
   redirect_uri: window.location.origin,
   post_logout_redirect_uri: window.location.origin,

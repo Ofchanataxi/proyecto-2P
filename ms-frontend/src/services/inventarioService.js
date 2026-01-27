@@ -1,92 +1,49 @@
-import axios from 'axios';
-import { User } from 'oidc-client-ts';
+const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || "http://34.130.207.184:8080";
 
-const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
+function getToken() {
+  const authority = import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000";
+  const key = `oidc.user:${authority}:farmacia-frontend`;
+  const oidcStorage = sessionStorage.getItem(key);
+  if (!oidcStorage) return null;
 
-const getAuthHeaders = () => {
-  const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:8080:farmacia-frontend");
-  if (!oidcStorage) return {};
-  const user = User.fromStorageString(oidcStorage);
-  return {
-    'Authorization': `Bearer ${user.access_token}`,
-    'Content-Type': 'application/json'
+  try {
+    const parsed = JSON.parse(oidcStorage);
+    return parsed?.access_token || null;
+  } catch {
+    return null;
+  }
+}
+
+async function request(path, options = {}) {
+  const token = getToken();
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
-};
 
-const inventarioAPI = axios.create({
-  baseURL: `${API_GATEWAY}/api`,
-});
-
-inventarioAPI.interceptors.request.use(config => {
-  const headers = getAuthHeaders();
-  if (headers.Authorization) {
-    config.headers.Authorization = headers.Authorization;
+  const res = await fetch(`${API_GATEWAY}${path}`, { ...options, headers });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status} ${res.statusText} ${text}`);
   }
-  return config;
-});
 
-// Exportación nombrada para que coincida con SucursalesAdmin.jsx
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return await res.text();
+  return await res.json();
+}
+
+// Funciones
+const listarInventarios = () => request("/api/inventarios");
+const obtenerInventario = (id) => request(`/api/inventarios/${id}`);
+const actualizarInventario = (id, data) =>
+  request(`/api/inventarios/${id}`, { method: "PUT", body: JSON.stringify(data) });
+
+// ✅ Un solo objeto exportado como named + default
 export const inventarioService = {
-  // --- SUCURSALES ---
-  getAllSucursales: async () => {
-    const response = await inventarioAPI.get('/sucursales');
-    return response.data;
-  },
-  getSucursales: async () => {
-    const response = await inventarioAPI.get('/sucursales');
-    return response.data;
-  },
-  getSucursalById: async (id) => {
-    const response = await inventarioAPI.get(`/sucursales/${id}`);
-    return response.data;
-  },
-  createSucursal: async (sucursal) => {
-    const response = await inventarioAPI.post('/sucursales', sucursal);
-    return response.data;
-  },
-  updateSucursal: async (id, sucursal) => {
-    const response = await inventarioAPI.put(`/sucursales/${id}`, sucursal);
-    return response.data;
-  },
-  deleteSucursal: async (id) => {
-    const response = await inventarioAPI.delete(`/sucursales/${id}`);
-    return response.data;
-  },
-
-  // --- INVENTARIOS ---
-  getInventarios: async () => {
-    const response = await inventarioAPI.get('/inventarios');
-    return response.data;
-  },
-  getAllInventarios: async () => {
-    const response = await inventarioAPI.get('/inventarios');
-    return response.data;
-  },
-  getInventariosPorSucursal: async (sucursalId) => {
-    const response = await inventarioAPI.get(`/inventarios/sucursal/${sucursalId}`);
-    return response.data;
-  },
-  getInventarioById: async (id) => {
-    const response = await inventarioAPI.get(`/inventarios/${id}`);
-    return response.data;
-  },
-  createInventario: async (payload) => {
-    const response = await inventarioAPI.post('/inventarios', payload);
-    return response.data;
-  },
-  updateInventario: async (id, cantidad) => {
-    const response = await inventarioAPI.put(`/inventarios/${id}`, { cantidad });
-    return response.data;
-  },
-  verificarDisponibilidad: async (sucursalId, medicamentoId) => {
-    const response = await inventarioAPI.get(`/inventarios/verificar/${sucursalId}/${medicamentoId}`);
-    return response.data;
-  },
-  descontarInventario: async (descontar) => {
-    const response = await inventarioAPI.put('/inventarios/descontar', descontar);
-    return response.data;
-  }
+  listarInventarios,
+  obtenerInventario,
+  actualizarInventario,
 };
 
-// También dejamos el default por si otros archivos lo usan sin llaves
 export default inventarioService;

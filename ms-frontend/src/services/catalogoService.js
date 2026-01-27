@@ -1,64 +1,55 @@
-import axios from 'axios';
-import { User } from 'oidc-client-ts';
+const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || "http://34.130.207.184:8080";
 
-const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
+function getToken() {
+  const authority = import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000";
+  const key = `oidc.user:${authority}:farmacia-frontend`;
+  const oidcStorage = sessionStorage.getItem(key);
+  if (!oidcStorage) return null;
 
-// Función para obtener el token de la sesión actual
-const getAuthHeaders = () => {
-  const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:8080:farmacia-frontend");
-  if (!oidcStorage) return {};
-  const user = User.fromStorageString(oidcStorage);
-  return {
-    'Authorization': `Bearer ${user.access_token}`,
-    'Content-Type': 'application/json'
+  try {
+    const parsed = JSON.parse(oidcStorage);
+    return parsed?.access_token || null;
+  } catch {
+    return null;
+  }
+}
+
+async function request(path, options = {}) {
+  const token = getToken();
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
-};
 
-const catalogoAPI = axios.create({
-  baseURL: `${API_GATEWAY}/api/medicamentos`,
-});
-
-// Interceptor: Inyecta el token en cada petición automáticamente
-catalogoAPI.interceptors.request.use(config => {
-  const headers = getAuthHeaders();
-  if (headers.Authorization) {
-    config.headers.Authorization = headers.Authorization;
+  const res = await fetch(`${API_GATEWAY}${path}`, { ...options, headers });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status} ${res.statusText} ${text}`);
   }
-  return config;
-});
 
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return await res.text();
+  return await res.json();
+}
+
+// Funciones
+const listarMedicamentos = () => request("/api/medicamentos");
+const obtenerMedicamento = (id) => request(`/api/medicamentos/${id}`);
+const crearMedicamento = (data) =>
+  request("/api/medicamentos", { method: "POST", body: JSON.stringify(data) });
+const actualizarMedicamento = (id, data) =>
+  request(`/api/medicamentos/${id}`, { method: "PUT", body: JSON.stringify(data) });
+const eliminarMedicamento = (id) =>
+  request(`/api/medicamentos/${id}`, { method: "DELETE" });
+
+// ✅ Un solo objeto, exportado de 2 formas (named + default)
 export const catalogoService = {
-  // Cambiamos el nombre para que Home.jsx lo encuentre
-  getMedicamentos: async () => {
-    const response = await catalogoAPI.get('');
-    return response.data;
-  },
-
-  // Alias para compatibilidad con MedicamentosAdmin
-  getAllMedicamentos: async () => {
-    const response = await catalogoAPI.get('');
-    return response.data;
-  },
-
-  getMedicamentoById: async (id) => {
-    const response = await catalogoAPI.get(`/${id}`);
-    return response.data;
-  },
-
-  createMedicamento: async (medicamento) => {
-    const response = await catalogoAPI.post('', medicamento);
-    return response.data;
-  },
-
-  updateMedicamento: async (id, medicamento) => {
-    const response = await catalogoAPI.put(`/${id}`, medicamento);
-    return response.data;
-  },
-
-  deleteMedicamento: async (id) => {
-    const response = await catalogoAPI.delete(`/${id}`);
-    return response.data;
-  }
+  listarMedicamentos,
+  obtenerMedicamento,
+  crearMedicamento,
+  actualizarMedicamento,
+  eliminarMedicamento,
 };
 
 export default catalogoService;

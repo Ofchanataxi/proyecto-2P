@@ -1,62 +1,52 @@
-import axios from 'axios';
-import { User } from 'oidc-client-ts';
+const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || "http://34.130.207.184:8080";
 
-const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || 'http://localhost:8080';
+function getToken() {
+  const authority = import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000";
+  const key = `oidc.user:${authority}:farmacia-frontend`;
+  const oidcStorage = sessionStorage.getItem(key);
+  if (!oidcStorage) return null;
 
-// Función auxiliar para obtener headers con Token
-const getAuthHeaders = () => {
-  const oidcStorage = sessionStorage.getItem("oidc.user:http://localhost:8080:farmacia-frontend");
-  if (!oidcStorage) return {};
-  const user = User.fromStorageString(oidcStorage);
-  return {
-    'Authorization': `Bearer ${user.access_token}`,
-    'Content-Type': 'application/json'
+  try {
+    const parsed = JSON.parse(oidcStorage);
+    return parsed?.access_token || null;
+  } catch {
+    return null;
+  }
+}
+
+async function request(path, options = {}) {
+  const token = getToken();
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
-};
 
-const ventasAPI = axios.create({
-  baseURL: `${API_GATEWAY}/api/ventas`,
-});
-
-// Interceptor para inyectar token en cada petición
-ventasAPI.interceptors.request.use(config => {
-  const headers = getAuthHeaders();
-  if (headers.Authorization) {
-    config.headers.Authorization = headers.Authorization;
+  const res = await fetch(`${API_GATEWAY}${path}`, { ...options, headers });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status} ${res.statusText} ${text}`);
   }
-  return config;
-});
 
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return await res.text();
+  return await res.json();
+}
+
+// Funciones
+const listarVentas = () => request("/api/ventas");
+const obtenerVenta = (id) => request(`/api/ventas/${id}`);
+const crearVenta = (data) =>
+  request("/api/ventas", { method: "POST", body: JSON.stringify(data) });
+const eliminarVenta = (id) =>
+  request(`/api/ventas/${id}`, { method: "DELETE" });
+
+// ✅ Un solo objeto exportado como named + default
 export const ventasService = {
-  createVenta: async (ventaData) => {
-    try {
-      const response = await ventasAPI.post('', ventaData);
-      return response.data;
-    } catch (error) {
-      console.error('Error en createVenta:', error);
-      throw error;
-    }
-  },
-
-  getVentas: async () => {
-    try {
-      const response = await ventasAPI.get('');
-      return response.data;
-    } catch (error) {
-      console.error('Error en getVentas:', error);
-      return [];
-    }
-  },
-
-  getVentaById: async (id) => {
-    try {
-      const response = await ventasAPI.get(`/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error en getVentaById:', error);
-      throw error;
-    }
-  }
+  listarVentas,
+  obtenerVenta,
+  crearVenta,
+  eliminarVenta,
 };
 
 export default ventasService;
