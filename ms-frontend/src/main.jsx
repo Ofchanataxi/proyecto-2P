@@ -14,13 +14,7 @@ const oidcConfig = {
   scope: "openid profile read write",
   automaticSilentRenew: false,
   loadUserInfo: true,
-  // FORZAR DESACTIVACIÓN DE PKCE para HTTP (sin HTTPS)
-  // react-oidc-context intenta PKCE si el servidor lo soporta,
-  // pero falla en HTTP porque Crypto.subtle no está disponible
-  metadata: {
-    // Metadata básica que será combinada con la del servidor
-    code_challenge_methods_supported: []  // Indica que NO se soporta PKCE
-  },
+  // El backend ya tiene requireProofKey(false), por lo que no intentará PKCE
   onSigninCallback: () => {
     window.history.replaceState({}, document.title, window.location.pathname);
   }
