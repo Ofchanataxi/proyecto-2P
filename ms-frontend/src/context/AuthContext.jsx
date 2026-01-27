@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authService } from '../services/authService';
 
 const AuthContext = createContext(null);
 
@@ -11,90 +10,160 @@ export const useAuth = () => {
   return context;
 };
 
+// Configuración OAuth
+const OAUTH_CONFIG = {
+  authority: import.meta.env.VITE_OIDC_AUTHORITY || 'http://34.130.207.184:9000',
+  client_id: 'farmacia-frontend',
+  redirect_uri: window.location.origin + '/',
+  response_type: 'code',
+  scope: 'openid profile read write',
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState(null);
 
+  // Cargar usuario desde localStorage
   useEffect(() => {
-    // Cargar usuario del localStorage al iniciar
-    const loadUser = async () => {
-      const token = authService.getToken();
-      const savedUser = authService.getCurrentUser();
-
-      if (token && savedUser) {
-        try {
-          // Validar el token
-          const validation = await authService.validateToken(token, savedUser.username);
-          if (validation.valid) {
-            setUser(savedUser);
-          } else {
-            authService.logout();
-          }
-        } catch (error) {
-          console.error('Error validando token:', error);
-          authService.logout();
+    const loadUser = () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const userInfo = localStorage.getItem('user_info');
+        
+        if (token && userInfo) {
+          const parsedUser = JSON.parse(userInfo);
+          setUser(parsedUser);
+          setIsAuthenticated(true);
         }
+      } catch (err) {
+        console.error('Error cargando usuario:', err);
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user_info');
+      } finally {
+        setIsLoading(false);
       }
-      setLoading(false);
     };
 
     loadUser();
   }, []);
 
-  const login = async (username, password) => {
-    try {
-      const response = await authService.login(username, password);
-      const userData = {
-        username: response.username,
-        email: response.email,
-        rol: response.rol,
-      };
-      authService.setUserSession(response.token, userData);
-      setUser(userData);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  // Manejar callback de OAuth (código de autorización)
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+
+      if (code) {
+        setIsLoading(true);
+        try {
+          // Intercambiar código por token
+          const tokenResponse = await fetch(`${OAUTH_CONFIG.authority}/oauth2/token`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              grant_type: 'authorization_code',
+              code: code,
+              redirect_uri: OAUTH_CONFIG.redirect_uri,
+              client_id: OAUTH_CONFIG.client_id,
+            }),
+          });
+
+          if (!tokenResponse.ok) {
+            const errorText = await tokenResponse.text();
+            console.error('Error obteniendo token:', errorText);
+            throw new Error('Error obteniendo token');
+          }
+
+          const tokenData = await tokenResponse.json();
+          
+          // Guardar tokens
+          localStorage.setItem('access_token', tokenData.access_token);
+          if (tokenData.refresh_token) {
+            localStorage.setItem('refresh_token', tokenData.refresh_token);
+          }
+
+          // Obtener información del usuario
+          const userInfoResponse = await fetch(`${OAUTH_CONFIG.authority}/userinfo`, {
+            headers: {
+              'Authorization': `Bearer ${tokenData.access_token}`,
+            },
+          });
+
+          if (userInfoResponse.ok) {
+            const userInfo = await userInfoResponse.json();
+            localStorage.setItem('user_info', JSON.stringify(userInfo));
+            setUser(userInfo);
+            setIsAuthenticated(true);
+          } else {
+            console.error('Error obteniendo userinfo');
+          }
+
+          // Limpiar URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (err) {
+          console.error('Error en OAuth callback:', err);
+          setError(err);
+          setIsAuthenticated(false);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    handleOAuthCallback();
+  }, []);
+
+  // Iniciar login (redirigir a OAuth)
+  const signinRedirect = () => {
+    const state = Math.random().toString(36).substring(7);
+    sessionStorage.setItem('oauth_state', state);
+
+    const authUrl = new URL(`${OAUTH_CONFIG.authority}/oauth2/authorize`);
+    authUrl.searchParams.append('response_type', OAUTH_CONFIG.response_type);
+    authUrl.searchParams.append('client_id', OAUTH_CONFIG.client_id);
+    authUrl.searchParams.append('redirect_uri', OAUTH_CONFIG.redirect_uri);
+    authUrl.searchParams.append('scope', OAUTH_CONFIG.scope);
+    authUrl.searchParams.append('state', state);
+
+    window.location.href = authUrl.toString();
   };
 
-  const register = async (username, email, password, rol) => {
-    try {
-      const response = await authService.register(username, email, password, rol);
-      const userData = {
-        username: response.username,
-        email: response.email,
-        rol: response.rol,
-      };
-      authService.setUserSession(response.token, userData);
-      setUser(userData);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
-
-  const logout = () => {
-    authService.logout();
+  // Logout
+  const signoutRedirect = () => {
+    // Limpiar localStorage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_info');
     setUser(null);
+    setIsAuthenticated(false);
+
+    // Redirigir a logout de OAuth
+    const logoutUrl = new URL(`${OAUTH_CONFIG.authority}/logout`);
+    logoutUrl.searchParams.append('post_logout_redirect_uri', window.location.origin);
+    window.location.href = logoutUrl.toString();
   };
 
-  const isAdmin = () => {
-    return user?.rol === 'ADMIN';
-  };
-
-  const isMedico = () => {
-    return user?.rol === 'MEDICO';
+  // Remover usuario (logout local)
+  const removeUser = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_info');
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   const value = {
     user,
-    loading,
-    login,
-    register,
-    logout,
-    isAuthenticated: !!user,
-    isAdmin,
-    isMedico,
+    isLoading,
+    isAuthenticated,
+    error,
+    signinRedirect,
+    signoutRedirect,
+    removeUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

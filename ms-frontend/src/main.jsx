@@ -3,26 +3,11 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { CartProvider } from './context/CartContext.jsx'
-import { AuthProvider } from "react-oidc-context";
-
-const oidcConfig = {
-  authority: (import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000"),
-  client_id: "farmacia-frontend",
-  redirect_uri: window.location.origin + "/",
-  post_logout_redirect_uri: window.location.origin,
-  response_type: "code",
-  scope: "openid profile read write",
-  automaticSilentRenew: false,
-  loadUserInfo: true,
-  // El backend ya tiene requireProofKey(false), por lo que no intentará PKCE
-  onSigninCallback: () => {
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-};
+import { AuthProvider } from './context/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider {...oidcConfig}>
+    <AuthProvider>
       <CartProvider>
         <App />
       </CartProvider>
