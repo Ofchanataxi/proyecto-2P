@@ -8,14 +8,19 @@ import { AuthProvider } from "react-oidc-context";
 const oidcConfig = {
   authority: (import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000"),
   client_id: "farmacia-frontend",
-  // Usar location completo con trailing slash para coincidir con backend
   redirect_uri: window.location.origin + "/",
   post_logout_redirect_uri: window.location.origin,
   response_type: "code",
   scope: "openid profile read write",
-  // Activar PKCE automáticamente (react-oidc-context lo maneja)
   automaticSilentRenew: false,
   loadUserInfo: true,
+  // FORZAR DESACTIVACIÓN DE PKCE para HTTP (sin HTTPS)
+  // react-oidc-context intenta PKCE si el servidor lo soporta,
+  // pero falla en HTTP porque Crypto.subtle no está disponible
+  metadata: {
+    // Metadata básica que será combinada con la del servidor
+    code_challenge_methods_supported: []  // Indica que NO se soporta PKCE
+  },
   onSigninCallback: () => {
     window.history.replaceState({}, document.title, window.location.pathname);
   }

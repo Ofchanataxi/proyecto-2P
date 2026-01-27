@@ -1,8 +1,66 @@
-# 🔧 SOLUCIÓN OAuth 2.0 + PKCE - Spring Authorization Server + React
+# 🔧 SOLUCIÓN OAuth 2.0 - Spring Authorization Server + React
 
-## ❌ PROBLEMAS IDENTIFICADOS
+## 🔴 PROBLEMA REAL IDENTIFICADO
 
-### 1. **RegisteredClient sin URIs de producción**
+### **"Crypto.subtle is available only in secure contexts (HTTPS)"**
+
+**Causa raíz**:
+
+- PKCE requiere `Crypto.subtle` de la Web Crypto API para generar `code_challenge` usando SHA-256
+- Los navegadores **BLOQUEAN** `Crypto.subtle` en HTTP (solo funciona en HTTPS o localhost)
+- Estás accediendo desde IP pública con HTTP: `http://34.130.207.184:3000` ❌
+
+**Por qué falló antes**:
+
+- Backend configurado con `requireProofKey(true)` → exige PKCE
+- Frontend intenta usar PKCE automáticamente
+- Navegador bloquea `Crypto.subtle` en HTTP
+- **Resultado**: Error de autenticación
+
+---
+
+## ✅ SOLUCIÓN APLICADA: DESHABILITAR PKCE
+
+**IMPORTANTE**: Esta es una solución para **desarrollo/testing sin HTTPS**. En producción real debes usar HTTPS + PKCE.
+
+### Cambios implementados:
+
+### 1. Backend: Deshabilitar PKCE
+
+```java
+// SecurityConfig.java - RegisteredClient
+.clientSettings(ClientSettings.builder()
+    .requireAuthorizationConsent(false)
+    .requireProofKey(false)  // ✅ DESHABILITADO para HTTP
+    .build())
+```
+
+### 2. Frontend: Forzar desactivación PKCE
+
+```javascript
+// main.jsx
+const oidcConfig = {
+  authority: "http://34.130.207.184:9000",
+  client_id: "farmacia-frontend",
+  redirect_uri: window.location.origin + "/",
+  post_logout_redirect_uri: window.location.origin,
+  response_type: "code",
+  scope: "openid profile read write",
+  automaticSilentRenew: false,
+  loadUserInfo: true,
+  // ✅ FORZAR NO PKCE
+  metadata: {
+    code_challenge_methods_supported: [], // Indica que NO se soporta PKCE
+  },
+  onSigninCallback: () => {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  },
+};
+```
+
+---
+
+## 📋 PROBLEMAS ORIGINALES CORREGIDOS
 
 - ❌ Solo tenía `localhost:3000` y `127.0.0.1:3000`
 - ✅ Faltaban `http://34.130.207.184:3000` y `http://34.130.207.184:3000/`
@@ -106,23 +164,24 @@ public CorsConfigurationSource corsConfigurationSource() {
 }
 ```
 
-### Backend: `application.properties`
+(ACTUALIZADOS)
 
-```properties
-# ✅ ISSUER PÚBLICO
-spring.security.oauth2.authorizationserver.issuer=http://34.130.207.184:9000
+### 1. Reconstruir oauth-server (CRÍTICO - Cambió requireProofKey)
+
+```bash
+cd proyecto-2P
+docker-compose stop oauth-server
+docker-compose rm -f oauth-server
+docker-compose build --no-cache oauth-server
+docker-compose up -d oauth-server
 ```
 
-### Frontend: `main.jsx`
+### 2. Reconstruir frontend (CRÍTICO - Cambió oidcConfig)
 
-```javascript
-const oidcConfig = {
-  authority:
-    import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000",
-  client_id: "farmacia-frontend",
-  redirect_uri: window.location.origin + "/", // ✅ CON TRAILING SLASH
-  post_logout_redirect_uri: window.location.origin,
-  response_type: "code", // ✅ AUTHORIZATION CODE
+```bash
+docker-compose stop ms-frontend
+docker-compose rm -f ms-frontend
+docker-compose build --no-cachede", // ✅ AUTHORIZATION CODE
   scope: "openid profile read write",
   automaticSilentRenew: false,
   loadUserInfo: true,
@@ -237,6 +296,12 @@ grant_type=authorization_code
 
 ## 🐛 TROUBLESHOOTING
 
+### Error: "Crypto.subtle is available only in secure contexts"
+
+- ✅ **SOLUCIONADO**: Deshabilitado PKCE en backend y frontend
+- ✅ OAuth ahora funciona sin necesidad de HTTPS
+- ⚠️ **Advertencia**: En producción real usa HTTPS + PKCE
+
 ### Error: "redirect_uri mismatch"
 
 - ✅ Verificar que `redirect_uri` en request coincida **EXACTAMENTE** con alguno registrado
@@ -258,6 +323,54 @@ grant_type=authorization_code
 - ✅ Verificar que `onSigninCallback` se ejecute
 - ✅ Verificar que no haya errores en Console de navegador
 - ✅ Verificar que `code` query param exista en URL después de redirect
+
+---
+
+## ⚠️ MIGRACIÓN A PRODUCCIÓN CON HTTPS
+
+Cuando tengas HTTPS configurado:
+
+### 1. Backend: Habilitar PKCE
+
+```java
+.clientSettings(ClientSettings.builder()
+    .requireAuthorizationConsent(false)
+    .requireProofKey(true)  // ✅ ACTIVAR para HTTPS
+    .build())
+```
+
+### 2. Frontend: Eliminar metadata override
+
+```javascript
+const oidcConfig = {
+  authority: "https://tu-dominio.com:9000",
+  client_id: "farmacia-frontend",
+  redirect_uri: window.location.origin + "/",
+  post_logout_redirect_uri: window.location.origin,
+  response_type: "code",
+  scope: "openid profile read write",
+  automaticSilentRenew: true,
+  loadUserInfo: true,
+  // ✅ ELIMINAR metadata - react-oidc-context usará PKCE automáticamente
+  onSigninCallback: () => {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  },
+};
+```
+
+### 3. Actualizar RegisteredClient URIs
+
+```java
+.redirectUri("https://tu-dominio.com")
+.redirectUri("https://tu-dominio.com/")
+.postLogoutRedirectUri("https://tu-dominio.com")
+```
+
+### 4. Actualizar AuthorizationServerSettings
+
+```java
+.issuer("https://tu-dominio.com:9000")
+```
 
 ---
 

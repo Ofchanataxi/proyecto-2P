@@ -73,10 +73,9 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
                 configuration.setAllowedOrigins(Arrays.asList(
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://34.130.207.184:3000"
-));
+                                "http://localhost:3000",
+                                "http://127.0.0.1:3000",
+                                "http://34.130.207.184:3000"));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("*"));
                 configuration.setAllowCredentials(true);
@@ -118,7 +117,8 @@ public class SecurityConfig {
                                 .cors(Customizer.withDefaults())
                                 .csrf(csrf -> csrf.disable())
                                 .oauth2ResourceServer((resourceServer) -> resourceServer
-                                                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+                                                .jwt(jwt -> jwt.jwtAuthenticationConverter(
+                                                                jwtAuthenticationConverter())));
 
                 return http.build();
         }
@@ -148,16 +148,16 @@ public class SecurityConfig {
                                                 // Permitir acceso a recursos estáticos sin autenticación
                                                 .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.ico",
                                                                 "/error")
-						.permitAll()
+                                                .permitAll()
 
-						//Permitir endpoints OIDC/Oauth sin autenticación
-						.requestMatchers(
-  						  "/.well-known/**",
-    						  "/oauth2/jwks",
-    						  "/oauth2/token",
-   						  "/oauth2/introspect",
-   						  "/oauth2/revoke"
-						).permitAll()
+                                                // Permitir endpoints OIDC/Oauth sin autenticación
+                                                .requestMatchers(
+                                                                "/.well-known/**",
+                                                                "/oauth2/jwks",
+                                                                "/oauth2/token",
+                                                                "/oauth2/introspect",
+                                                                "/oauth2/revoke")
+                                                .permitAll()
                                                 .anyRequest().authenticated())
                                 // ACTIVAR CORS AQUÍ
                                 .cors(Customizer.withDefaults())
@@ -204,7 +204,7 @@ public class SecurityConfig {
                                 .scope("write")
                                 .clientSettings(ClientSettings.builder()
                                                 .requireAuthorizationConsent(false)
-                                                .requireProofKey(true)
+                                                .requireProofKey(false) // Deshabilitado para HTTP (sin HTTPS)
                                                 .build())
                                 .build();
 
