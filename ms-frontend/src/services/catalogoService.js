@@ -42,6 +42,7 @@ const eliminarMedicamento = (id) =>
 export const catalogoService = {
   listarMedicamentos,
   getMedicamentos: listarMedicamentos, // Alias para compatibilidad
+  getAllMedicamentos: listarMedicamentos, // Alias para compatibilidad
   obtenerMedicamento,
   crearMedicamento,
   actualizarMedicamento,

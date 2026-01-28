@@ -36,6 +36,7 @@ const eliminarVenta = (id) =>
 // ✅ Un solo objeto exportado como named + default
 export const ventasService = {
   listarVentas,
+  getVentas: listarVentas, // Alias para compatibilidad
   obtenerVenta,
   crearVenta,
   eliminarVenta,

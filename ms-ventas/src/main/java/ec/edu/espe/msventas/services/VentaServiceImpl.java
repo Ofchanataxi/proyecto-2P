@@ -34,14 +34,16 @@ public class VentaServiceImpl implements VentaService {
         for (DetalleVenta detalle : venta.getDetalles()) {
             // A. Validar producto (igual que antes) ...
             ProductoDTO producto = catalogoClient.obtenerProducto(detalle.getMedicamentoId());
-            if (producto == null) throw new RuntimeException("Producto no existe: " + detalle.getMedicamentoId());
+            if (producto == null)
+                throw new RuntimeException("Producto no existe: " + detalle.getMedicamentoId());
 
             detalle.setPrecioUnitario(producto.getPrecioUnitario());
             detalle.setSubtotal(producto.getPrecioUnitario() * detalle.getCantidad());
             totalVenta += detalle.getSubtotal();
 
             // B. Validar stock (igual que antes) ...
-            InventarioDTO inventario = inventarioClient.verificarStock(venta.getSucursalId(), detalle.getMedicamentoId());
+            InventarioDTO inventario = inventarioClient.verificarStock(venta.getSucursalId(),
+                    detalle.getMedicamentoId());
             if (inventario == null || inventario.getCantidad() < detalle.getCantidad()) {
                 throw new RuntimeException("Stock insuficiente para el producto: " + producto.getNombre());
             }
