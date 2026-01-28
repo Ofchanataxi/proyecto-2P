@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Todas las peticiones pasan por el API Gateway
 const API_GATEWAY =
-  import.meta.env.VITE_API_GATEWAY || "http://34.130.207.184:8080";
+  import.meta.env.VITE_API_GATEWAY || "http://34.130.32.93:8080";
 
 const getAuthHeaders = () => {
   // Obtener token desde localStorage (AuthContext lo guarda ahí)

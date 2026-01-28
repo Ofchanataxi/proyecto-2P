@@ -1,5 +1,5 @@
 const API_GATEWAY =
-  import.meta.env.VITE_API_GATEWAY || "http://34.130.207.184:8080";
+  import.meta.env.VITE_API_GATEWAY || "http://34.130.32.93:8080";
 
 function getToken() {
   // Obtener token desde localStorage (AuthContext lo guarda ahí)
@@ -35,11 +35,30 @@ const actualizarInventario = (id, data) =>
     body: JSON.stringify(data),
   });
 
+// Sucursales
+const listarSucursales = () => request("/api/sucursales");
+const obtenerSucursal = (id) => request(`/api/sucursales/${id}`);
+const crearSucursal = (data) =>
+  request("/api/sucursales", { method: "POST", body: JSON.stringify(data) });
+const actualizarSucursal = (id, data) =>
+  request(`/api/sucursales/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+const eliminarSucursal = (id) =>
+  request(`/api/sucursales/${id}`, { method: "DELETE" });
+
 // ✅ Un solo objeto exportado como named + default
 export const inventarioService = {
   listarInventarios,
   obtenerInventario,
   actualizarInventario,
+  listarSucursales,
+  getSucursales: listarSucursales, // Alias
+  obtenerSucursal,
+  crearSucursal,
+  actualizarSucursal,
+  eliminarSucursal,
 };
 
 export default inventarioService;
