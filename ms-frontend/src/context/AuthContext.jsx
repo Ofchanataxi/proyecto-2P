@@ -119,6 +119,9 @@ export const AuthProvider = ({ children }) => {
 
   // Iniciar login (redirigir a OAuth)
   const signinRedirect = () => {
+    console.log('🔐 Iniciando login OAuth...');
+    console.log('Authority:', OAUTH_CONFIG.authority);
+    
     const state = Math.random().toString(36).substring(7);
     sessionStorage.setItem('oauth_state', state);
 
@@ -129,6 +132,7 @@ export const AuthProvider = ({ children }) => {
     authUrl.searchParams.append('scope', OAUTH_CONFIG.scope);
     authUrl.searchParams.append('state', state);
 
+    console.log('🔗 Redirigiendo a:', authUrl.toString());
     window.location.href = authUrl.toString();
   };
 
