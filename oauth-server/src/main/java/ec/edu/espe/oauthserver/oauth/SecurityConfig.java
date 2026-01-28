@@ -93,6 +93,11 @@ public class SecurityConfig {
                 http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                                 .oidc(Customizer.withDefaults()); // Enable OpenID Connect 1.0
 
+                // PERMITIR ACCESO ANÓNIMO AL TOKEN ENDPOINT PARA CLIENTES PÚBLICOS
+                http.authorizeHttpRequests(authorize -> authorize
+                                .requestMatchers("/oauth2/token").permitAll()
+                                .anyRequest().authenticated());
+
                 http.exceptionHandling((exceptions) -> exceptions
                                 .defaultAuthenticationEntryPointFor(
                                                 new LoginUrlAuthenticationEntryPoint("/login"),
@@ -170,7 +175,7 @@ public class SecurityConfig {
                                                 .logoutRequestMatcher(
                                                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher(
                                                                                 "/logout", "GET"))
-                                                .logoutSuccessUrl("http://34.130.207.184:3000")
+                                                .logoutSuccessUrl("http://34.130.32.93:3000")
                                                 .invalidateHttpSession(true)
                                                 .clearAuthentication(true)
                                                 .deleteCookies("JSESSIONID")
