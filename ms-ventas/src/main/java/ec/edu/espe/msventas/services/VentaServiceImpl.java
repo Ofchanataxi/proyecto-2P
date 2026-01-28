@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class VentaServiceImpl implements VentaService {
@@ -55,5 +57,15 @@ public class VentaServiceImpl implements VentaService {
 
         venta.setTotal(totalVenta);
         return repository.save(venta);
+    }
+
+    @Override
+    public List<Venta> listarVentas() {
+        return repository.findAll();
+    }
+
+    @Override
+    public Optional<Venta> buscarPorId(Long id) {
+        return repository.findById(id);
     }
 }
