@@ -75,7 +75,7 @@ public class SecurityConfig {
                 configuration.setAllowedOrigins(Arrays.asList(
                                 "http://localhost:3000",
                                 "http://127.0.0.1:3000",
-                                "http://34.130.207.184:3000"));
+                                "http://34.130.32.93:3000"));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("*"));
                 configuration.setAllowCredentials(true);
@@ -193,11 +193,11 @@ public class SecurityConfig {
                                 .redirectUri("http://127.0.0.1:3000")
                                 .redirectUri("http://127.0.0.1:3000/")
                                 // URIs de producción (IP público)
-                                .redirectUri("http://34.130.207.184:3000")
-                                .redirectUri("http://34.130.207.184:3000/")
+                                .redirectUri("http://34.130.32.93:3000")
+                                .redirectUri("http://34.130.32.93:3000/")
                                 .postLogoutRedirectUri("http://localhost:3000")
                                 .postLogoutRedirectUri("http://127.0.0.1:3000")
-                                .postLogoutRedirectUri("http://34.130.207.184:3000")
+                                .postLogoutRedirectUri("http://34.130.32.93:3000")
                                 .scope(OidcScopes.OPENID)
                                 .scope(OidcScopes.PROFILE)
                                 .scope("read")
@@ -214,7 +214,7 @@ public class SecurityConfig {
         @Bean
         public AuthorizationServerSettings authorizationServerSettings() {
                 return AuthorizationServerSettings.builder()
-                                .issuer("http://34.130.207.184:9000")
+                                .issuer("http://34.130.32.93:9000")
                                 .build();
         }
 
