@@ -64,6 +64,7 @@ export const AuthProvider = ({ children }) => {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
             },
+            credentials: 'include', // IMPORTANTE: Incluir cookies de sesión
             body: new URLSearchParams({
               grant_type: 'authorization_code',
               code: code,
@@ -91,6 +92,7 @@ export const AuthProvider = ({ children }) => {
             headers: {
               'Authorization': `Bearer ${tokenData.access_token}`,
             },
+            credentials: 'include', // Incluir cookies
           });
 
           if (userInfoResponse.ok) {
