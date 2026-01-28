@@ -1,17 +1,10 @@
-const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || "http://34.130.207.184:8080";
+const API_GATEWAY =
+  import.meta.env.VITE_API_GATEWAY || "http://34.130.207.184:8080";
 
 function getToken() {
-  const authority = import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000";
-  const key = `oidc.user:${authority}:farmacia-frontend`;
-  const oidcStorage = sessionStorage.getItem(key);
-  if (!oidcStorage) return null;
-
-  try {
-    const parsed = JSON.parse(oidcStorage);
-    return parsed?.access_token || null;
-  } catch {
-    return null;
-  }
+  // Obtener token desde localStorage (AuthContext lo guarda ahí)
+  const accessToken = localStorage.getItem("access_token");
+  return accessToken || null;
 }
 
 async function request(path, options = {}) {
@@ -37,7 +30,10 @@ async function request(path, options = {}) {
 const listarInventarios = () => request("/api/inventarios");
 const obtenerInventario = (id) => request(`/api/inventarios/${id}`);
 const actualizarInventario = (id, data) =>
-  request(`/api/inventarios/${id}`, { method: "PUT", body: JSON.stringify(data) });
+  request(`/api/inventarios/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
 
 // ✅ Un solo objeto exportado como named + default
 export const inventarioService = {

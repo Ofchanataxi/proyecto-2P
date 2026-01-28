@@ -1,17 +1,10 @@
-const API_GATEWAY = import.meta.env.VITE_API_GATEWAY || "http://34.130.207.184:8080";
+const API_GATEWAY =
+  import.meta.env.VITE_API_GATEWAY || "http://34.130.207.184:8080";
 
 function getToken() {
-  const authority = import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000";
-  const key = `oidc.user:${authority}:farmacia-frontend`;
-  const oidcStorage = sessionStorage.getItem(key);
-  if (!oidcStorage) return null;
-
-  try {
-    const parsed = JSON.parse(oidcStorage);
-    return parsed?.access_token || null;
-  } catch {
-    return null;
-  }
+  // Obtener token desde localStorage (AuthContext lo guarda ahí)
+  const accessToken = localStorage.getItem("access_token");
+  return accessToken || null;
 }
 
 async function request(path, options = {}) {
@@ -39,7 +32,10 @@ const obtenerMedicamento = (id) => request(`/api/medicamentos/${id}`);
 const crearMedicamento = (data) =>
   request("/api/medicamentos", { method: "POST", body: JSON.stringify(data) });
 const actualizarMedicamento = (id, data) =>
-  request(`/api/medicamentos/${id}`, { method: "PUT", body: JSON.stringify(data) });
+  request(`/api/medicamentos/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
 const eliminarMedicamento = (id) =>
   request(`/api/medicamentos/${id}`, { method: "DELETE" });
 

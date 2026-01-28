@@ -5,7 +5,6 @@ import MedicamentosAdmin from '../components/admin/MedicamentosAdmin';
 import SucursalesAdmin from '../components/admin/SucursalesAdmin';
 import InventarioAdmin from '../components/admin/InventarioAdmin';
 import UsuariosAdmin from '../components/admin/UsuariosAdmin';
-import { User } from 'oidc-client-ts';
 import './Admin.css';
 
 const Admin = () => {
@@ -15,15 +14,11 @@ const Admin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Obtener token
+    // Obtener token desde localStorage
     try {
-      const OIDC_AUTHORITY = import.meta.env.VITE_OIDC_AUTHORITY || "http://34.130.207.184:9000";
-      const OIDC_KEY = "oidc.user:" + OIDC_AUTHORITY + ":farmacia-frontend";
-      const oidcStorage = sessionStorage.getItem(OIDC_KEY);
-
-      if (oidcStorage) {
-        const user = User.fromStorageString(oidcStorage);
-        setToken(user.access_token);
+      const accessToken = localStorage.getItem('access_token');
+      if (accessToken) {
+        setToken(accessToken);
       }
     } catch (e) {
       console.error("Error leyendo token:", e);
