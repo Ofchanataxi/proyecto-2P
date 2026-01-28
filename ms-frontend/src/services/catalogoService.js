@@ -44,9 +44,13 @@ export const catalogoService = {
   getMedicamentos: listarMedicamentos, // Alias para compatibilidad
   getAllMedicamentos: listarMedicamentos, // Alias para compatibilidad
   obtenerMedicamento,
+  getMedicamento: obtenerMedicamento, // Alias para compatibilidad
   crearMedicamento,
+  createMedicamento: crearMedicamento, // Alias para compatibilidad
   actualizarMedicamento,
+  updateMedicamento: actualizarMedicamento, // Alias para compatibilidad
   eliminarMedicamento,
+  deleteMedicamento: eliminarMedicamento, // Alias para compatibilidad
 };
 
 export default catalogoService;
