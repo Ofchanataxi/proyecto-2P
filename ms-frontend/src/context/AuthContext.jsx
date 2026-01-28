@@ -58,19 +58,25 @@ export const AuthProvider = ({ children }) => {
       if (code) {
         setIsLoading(true);
         try {
-          // Intercambiar código por token (cliente público - sin autenticación)
+          // Recuperar code_verifier de PKCE
+          const codeVerifier = sessionStorage.getItem('code_verifier');
+          if (!codeVerifier) {
+            console.error('code_verifier not found in sessionStorage');
+            throw new Error('PKCE code_verifier missing');
+          }
+          
+          // Intercambiar código por token usando PKCE
           const tokenResponse = await fetch(`${OAUTH_CONFIG.authority}/oauth2/token`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
             },
-            credentials: 'include', // IMPORTANTE: Incluir cookies de sesión
             body: new URLSearchParams({
               grant_type: 'authorization_code',
               code: code,
               redirect_uri: OAUTH_CONFIG.redirect_uri,
               client_id: OAUTH_CONFIG.client_id,
-              // NO enviar client_secret - será autenticado por la sesión HTTP
+              code_verifier: codeVerifier, // PKCE code_verifier
             }),
           });
 
@@ -81,6 +87,9 @@ export const AuthProvider = ({ children }) => {
           }
 
           const tokenData = await tokenResponse.json();
+          
+          // Limpiar code_verifier después de usarlo
+          sessionStorage.removeItem('code_verifier');
           
           // Guardar tokens
           localStorage.setItem('access_token', tokenData.access_token);

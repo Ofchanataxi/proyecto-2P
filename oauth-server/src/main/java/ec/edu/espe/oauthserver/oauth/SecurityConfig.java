@@ -204,7 +204,7 @@ public class SecurityConfig {
                                 .scope("write")
                                 .clientSettings(ClientSettings.builder()
                                                 .requireAuthorizationConsent(false)
-                                                .requireProofKey(false) // Deshabilitado para HTTP (sin HTTPS)
+                                                .requireProofKey(true) // HABILITAR PKCE para cliente público
                                                 .build())
                                 .build();
 
