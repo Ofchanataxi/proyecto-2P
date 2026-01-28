@@ -42,6 +42,7 @@ const eliminarMedicamento = (id) =>
 // ✅ Un solo objeto, exportado de 2 formas (named + default)
 export const catalogoService = {
   listarMedicamentos,
+  getMedicamentos: listarMedicamentos, // Alias para compatibilidad
   obtenerMedicamento,
   crearMedicamento,
   actualizarMedicamento,
