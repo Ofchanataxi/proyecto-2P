@@ -14,7 +14,6 @@ export const useAuth = () => {
 const OAUTH_CONFIG = {
   authority: import.meta.env.VITE_OIDC_AUTHORITY || 'http://34.130.207.184:9000',
   client_id: 'farmacia-frontend',
-  client_secret: 'secret123',
   redirect_uri: window.location.origin + '/',
   response_type: 'code',
   scope: 'openid profile read write',
@@ -59,19 +58,17 @@ export const AuthProvider = ({ children }) => {
       if (code) {
         setIsLoading(true);
         try {
-          // Intercambiar código por token con autenticación Basic
-          const credentials = btoa(`${OAUTH_CONFIG.client_id}:${OAUTH_CONFIG.client_secret}`);
-          
+          // Intercambiar código por token (cliente público - sin autenticación)
           const tokenResponse = await fetch(`${OAUTH_CONFIG.authority}/oauth2/token`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
-              'Authorization': `Basic ${credentials}`,
             },
             body: new URLSearchParams({
               grant_type: 'authorization_code',
               code: code,
               redirect_uri: OAUTH_CONFIG.redirect_uri,
+              client_id: OAUTH_CONFIG.client_id,
             }),
           });
 
