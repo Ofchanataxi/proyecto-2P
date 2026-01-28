@@ -183,8 +183,9 @@ public class SecurityConfig {
         public RegisteredClientRepository registeredClientRepository() {
                 RegisteredClient reactClient = RegisteredClient.withId(UUID.randomUUID().toString())
                                 .clientId("farmacia-frontend")
+                                // Cliente público: secret vacío con CLIENT_SECRET_POST
                                 .clientSecret("{noop}")
-                                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                                 // URIs de desarrollo

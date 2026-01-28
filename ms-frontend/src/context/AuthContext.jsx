@@ -70,6 +70,7 @@ export const AuthProvider = ({ children }) => {
               code: code,
               redirect_uri: OAUTH_CONFIG.redirect_uri,
               client_id: OAUTH_CONFIG.client_id,
+              client_secret: '', // Cliente público con secret vacío
             }),
           });
 
