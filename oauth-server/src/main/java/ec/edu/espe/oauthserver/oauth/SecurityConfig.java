@@ -93,11 +93,6 @@ public class SecurityConfig {
                 http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                                 .oidc(Customizer.withDefaults()); // Enable OpenID Connect 1.0
 
-                // PERMITIR ACCESO ANÓNIMO AL TOKEN ENDPOINT PARA CLIENTES PÚBLICOS
-                http.authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers("/oauth2/token").permitAll()
-                                .anyRequest().authenticated());
-
                 http.exceptionHandling((exceptions) -> exceptions
                                 .defaultAuthenticationEntryPointFor(
                                                 new LoginUrlAuthenticationEntryPoint("/login"),
