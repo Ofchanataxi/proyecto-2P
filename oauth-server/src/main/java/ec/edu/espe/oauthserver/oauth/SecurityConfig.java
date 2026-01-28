@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import ec.edu.espe.oauthserver.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -48,6 +49,12 @@ import java.util.UUID;
 @EnableWebSecurity
 public class SecurityConfig {
 
+        @Value("${FRONTEND_URL:http://localhost:3000}")
+        private String frontendUrl;
+
+        @Value("${OAUTH_ISSUER_URI:http://localhost:9000}")
+        private String oauthIssuerUri;
+
         // 1. GESTOR DE USUARIOS DESDE BASE DE DATOS
         @Bean
         public UserDetailsService userDetailsService(UsuarioRepository usuarioRepository) {
@@ -75,7 +82,7 @@ public class SecurityConfig {
                 configuration.setAllowedOrigins(Arrays.asList(
                                 "http://localhost:3000",
                                 "http://127.0.0.1:3000",
-                                "http://34.130.32.93:3000"));
+                                frontendUrl));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("*"));
                 configuration.setAllowCredentials(true);
@@ -170,7 +177,7 @@ public class SecurityConfig {
                                                 .logoutRequestMatcher(
                                                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher(
                                                                                 "/logout", "GET"))
-                                                .logoutSuccessUrl("http://34.130.32.93:3000")
+                                                .logoutSuccessUrl(frontendUrl)
                                                 .invalidateHttpSession(true)
                                                 .clearAuthentication(true)
                                                 .deleteCookies("JSESSIONID")
@@ -192,12 +199,12 @@ public class SecurityConfig {
                                 .redirectUri("http://localhost:3000/")
                                 .redirectUri("http://127.0.0.1:3000")
                                 .redirectUri("http://127.0.0.1:3000/")
-                                // URIs de producción (IP público)
-                                .redirectUri("http://34.130.32.93:3000")
-                                .redirectUri("http://34.130.32.93:3000/")
+                                // URIs de producción (variable de entorno)
+                                .redirectUri(frontendUrl)
+                                .redirectUri(frontendUrl + "/")
                                 .postLogoutRedirectUri("http://localhost:3000")
                                 .postLogoutRedirectUri("http://127.0.0.1:3000")
-                                .postLogoutRedirectUri("http://34.130.32.93:3000")
+                                .postLogoutRedirectUri(frontendUrl)
                                 .scope(OidcScopes.OPENID)
                                 .scope(OidcScopes.PROFILE)
                                 .scope("read")
@@ -214,7 +221,7 @@ public class SecurityConfig {
         @Bean
         public AuthorizationServerSettings authorizationServerSettings() {
                 return AuthorizationServerSettings.builder()
-                                .issuer("http://34.130.32.93:9000")
+                                .issuer(oauthIssuerUri)
                                 .build();
         }
 

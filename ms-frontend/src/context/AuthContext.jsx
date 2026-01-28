@@ -12,7 +12,7 @@ export const useAuth = () => {
 
 // Configuración OAuth
 const OAUTH_CONFIG = {
-  authority: import.meta.env.VITE_OIDC_AUTHORITY || 'http://34.130.32.93:9000',
+  authority: import.meta.env.VITE_OIDC_AUTHORITY || 'http://localhost:9000',
   client_id: 'farmacia-frontend',
   redirect_uri: window.location.origin + '/',
   response_type: 'code',

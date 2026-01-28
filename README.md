@@ -55,49 +55,83 @@ El sistema utiliza una arquitectura de microservicios contenerizada con Docker:
 
 ### 📦 Servicios y Puertos
 
-| Servicio | Puerto | Descripción | Tecnologías |
-|----------|--------|-------------|-------------|
-| `ms-frontend` | 3000 | Cliente Web | React, Vite, Axios, OIDC Client |
-| `api-gateway` | 8080 | Puerta de Enlace | Spring Cloud Gateway |
-| `oauth-server` | 9000 | Auth Server | Spring Authorization Server, JWT |
-| `ms-catalogo` | 8081 | Servicio Catálogo | Spring Boot, JPA |
-| `ms-inventario` | 8082 | Servicio Inventario | Spring Boot, JPA |
-| `ms-ventas` | 8083 | Servicio Ventas | Spring Boot, JPA |
-| `mysql-farmacia` | 3307 | Base de Datos | MySQL 8 |
-| `postgres-oauth` | 5433 | Base de Datos Auth | PostgreSQL 16 |
+| Servicio         | Puerto | Descripción         | Tecnologías                      |
+| ---------------- | ------ | ------------------- | -------------------------------- |
+| `ms-frontend`    | 3000   | Cliente Web         | React, Vite, Axios, OIDC Client  |
+| `api-gateway`    | 8080   | Puerta de Enlace    | Spring Cloud Gateway             |
+| `oauth-server`   | 9000   | Auth Server         | Spring Authorization Server, JWT |
+| `ms-catalogo`    | 8081   | Servicio Catálogo   | Spring Boot, JPA                 |
+| `ms-inventario`  | 8082   | Servicio Inventario | Spring Boot, JPA                 |
+| `ms-ventas`      | 8083   | Servicio Ventas     | Spring Boot, JPA                 |
+| `mysql-farmacia` | 3307   | Base de Datos       | MySQL 8                          |
+| `postgres-oauth` | 5433   | Base de Datos Auth  | PostgreSQL 16                    |
 
 ---
 
 ## 🚀 Instalación y Despliegue
 
 ### Prerrequisitos
+
 - **Docker Desktop** instalado y corriendo.
 - **Git** para clonar el repositorio.
 
 ### Pasos de Instalación
 
 1. **Clonar el repositorio**:
+
    ```bash
    git clone https://github.com/Ofchanataxi/proyecto-2P.git
    cd proyecto-2P
    git switch oauth
    ```
 
-2. **Levantar el entorno**:
+2. **Configurar IP de Producción** (Solo si despliegas en servidor remoto):
+
+   **Opción A: Script automático (Recomendado)**
+
+   ```bash
+   # En Linux/Mac
+   ./change-ip.sh TU_IP_AQUI
+
+   # En Windows PowerShell
+   .\change-ip.ps1 TU_IP_AQUI
+   ```
+
+   **Opción B: Manual**
+
+   ```bash
+   # Edita el archivo .env en la raíz
+   nano .env
+   # Cambia PUBLIC_IP, FRONTEND_URL, OAUTH_URL y GATEWAY_URL
+   ```
+
+   > **IP Actual**: `34.130.207.184` (configurada por defecto)
+   >
+   > 📖 Ver [GUIA_CONFIGURACION_ENV.md](GUIA_CONFIGURACION_ENV.md) para más detalles
+
+3. **Levantar el entorno**:
+
    ```bash
    docker-compose up -d --build
    ```
-   *Este comando construirá todas las imágenes y levantará los contenedores.*
 
-3. **Verificar estado**:
+   _Este comando construirá todas las imágenes y levantará los contenedores._
+
+4. **Verificar estado**:
+
    ```bash
    docker-compose ps
    ```
-   *Asegúrate de que todos los contenedores estén en estado "Up".*
 
-4. **Acceder a la aplicación**:
-   Abre tu navegador (Chrome/Safari/Firefox) en:
+   _Asegúrate de que todos los contenedores estén en estado "Up"._
+
+5. **Acceder a la aplicación**:
+
+   **Desarrollo Local:**
    👉 **http://localhost:3000** o **http://127.0.0.1:3000**
+
+   **Producción (servidor remoto):**
+   👉 **http://34.130.207.184:3000** (o tu IP configurada)
 
 ---
 
@@ -105,15 +139,17 @@ El sistema utiliza una arquitectura de microservicios contenerizada con Docker:
 
 El sistema viene preconfigurado con usuarios para pruebas:
 
-| Usuario | Contraseña | Rol | Acceso |
-|---------|------------|-----|--------|
-| `admin` | `admin123` | **ADMIN** | Acceso total al Panel de Administración |
-| `usuario` | `user123` | **USER** | Compra y catálogo básico |
+| Usuario   | Contraseña | Rol       | Acceso                                  |
+| --------- | ---------- | --------- | --------------------------------------- |
+| `admin`   | `admin123` | **ADMIN** | Acceso total al Panel de Administración |
+| `usuario` | `user123`  | **USER**  | Compra y catálogo básico                |
 
 ### Gestión de Usuarios (Nuevo)
+
 Puedes crear nuevos usuarios directamente desde la base de datos o usando el **Panel de Administración** si estás logueado como `admin`.
 
 Carga manual SQL (opcional):
+
 ```sql
 docker exec -it postgres-oauth psql -U admin -d db_oauth -c \
   "INSERT INTO usuarios (enabled, password, role, username) VALUES (true, '{noop}nuevo123', 'USER', 'nuevo') ON CONFLICT (username) DO NOTHING;"
@@ -126,6 +162,7 @@ docker exec -it postgres-oauth psql -U admin -d db_oauth -c \
 Accede haciendo clic en el botón **"👤 Admin"** en el header (solo visible si eres ADMIN).
 
 ### Funcionalidades del Panel:
+
 1. **💊 Medicamentos**: Crear, editar y eliminar productos del catálogo.
 2. **📍 Sucursales**: Gestionar ubicaciones físicas de farmacias.
 3. **📦 Inventario**: Asignar stock de medicamentos a sucursales.
@@ -140,7 +177,9 @@ Accede haciendo clic en el botón **"👤 Admin"** en el header (solo visible si
 > **Nota de Seguridad**: El usuario `admin` principal no puede ser eliminado para evitar quedarse sin acceso al sistema.
 
 ### 🔑 Token Debugging
-En la parte superior del panel de administración encontrarás una sección oscura llamada **"Token de Acceso (Debug)"**. 
+
+En la parte superior del panel de administración encontrarás una sección oscura llamada **"Token de Acceso (Debug)"**.
+
 - Haz clic en "Mostrar" para revelar tu JWT actual.
 - Usa "Copiar" para llevarlo al portapapeles y analizarlo en [jwt.io](https://jwt.io).
 
@@ -150,16 +189,17 @@ En la parte superior del panel de administración encontrarás una sección oscu
 
 El servidor OAuth expone endpoints REST para la gestión de usuarios (requiere rol ADMIN y token JWT):
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/usuarios` | Obtener todos los usuarios |
-| `GET` | `/usuarios/{id}` | Obtener usuario por ID |
-| `GET` | `/usuarios/buscar/{username}` | Buscar usuario por username |
-| `POST` | `/usuarios` | Crear nuevo usuario |
-| `PUT` | `/usuarios/{id}` | Actualizar usuario existente |
-| `DELETE` | `/usuarios/{id}` | Eliminar usuario |
+| Método   | Endpoint                      | Descripción                  |
+| -------- | ----------------------------- | ---------------------------- |
+| `GET`    | `/usuarios`                   | Obtener todos los usuarios   |
+| `GET`    | `/usuarios/{id}`              | Obtener usuario por ID       |
+| `GET`    | `/usuarios/buscar/{username}` | Buscar usuario por username  |
+| `POST`   | `/usuarios`                   | Crear nuevo usuario          |
+| `PUT`    | `/usuarios/{id}`              | Actualizar usuario existente |
+| `DELETE` | `/usuarios/{id}`              | Eliminar usuario             |
 
 ### Ejemplo de petición (crear usuario):
+
 ```bash
 curl -X POST http://localhost:9000/usuarios \
   -H "Authorization: Bearer <tu-token-jwt>" \
@@ -182,14 +222,16 @@ curl -X POST http://localhost:9000/usuarios \
 ## 🔧 Solución de Errores Comunes
 
 ### "Failed to fetch" o Error de Login
+
 - Asegúrate de que `oauth-server` esté corriendo (`docker logs oauth-server`).
 - Si usas Safari/Chrome, intenta limpiar caché o usar modo incógnito.
 - El sistema soporta CORS para `localhost` y `127.0.0.1`.
 
 ### Pantalla en blanco en Admin
+
 - Se ha corregido un bug de renderizado. Si persiste, recarga con `Cmd+Shift+R` (Mac) o `Ctrl+F5` (Windows).
 - Verifica que el usuario tenga rol `ADMIN`.
 
 ---
 
-*Desarrollado para la materia de Sistemas Distribuidos - 2026*
+_Desarrollado para la materia de Sistemas Distribuidos - 2026_
