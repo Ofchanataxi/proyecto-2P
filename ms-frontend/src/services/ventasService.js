@@ -37,9 +37,13 @@ const eliminarVenta = (id) =>
 export const ventasService = {
   listarVentas,
   getVentas: listarVentas, // Alias para compatibilidad
+  getAllVentas: listarVentas, // Alias para compatibilidad
   obtenerVenta,
+  getVenta: obtenerVenta, // Alias para compatibilidad
   crearVenta,
+  createVenta: crearVenta, // Alias para compatibilidad
   eliminarVenta,
+  deleteVenta: eliminarVenta, // Alias para compatibilidad
 };
 
 export default ventasService;
