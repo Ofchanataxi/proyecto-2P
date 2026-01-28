@@ -14,12 +14,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/ventas/**").hasAuthority("SCOPE_write") // Ventas requiere escritura
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
-            
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/ventas/**")
+                        .hasAnyAuthority("SCOPE_read", "SCOPE_write") // GET requiere read o write
+                        .requestMatchers("/api/ventas/**").hasAuthority("SCOPE_write") // POST/PUT/DELETE requieren
+                                                                                       // write
+                        .anyRequest().authenticated())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+
         return http.build();
     }
 }

@@ -20,6 +20,18 @@ public class VentaController {
     @Autowired
     private VentaService service;
 
+    @GetMapping
+    public ResponseEntity<?> listar() {
+        return ResponseEntity.ok(service.listarVentas());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
+        return service.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public ResponseEntity<?> crear(@Valid @RequestBody Venta venta) {
         try {
