@@ -129,13 +129,44 @@ export const AuthProvider = ({ children }) => {
     handleOAuthCallback();
   }, []);
 
-  // Iniciar login (redirigir a OAuth)
-  const signinRedirect = () => {
-    console.log('🔐 Iniciando login OAuth...');
+  // Funciones PKCE
+  function base64URLEncode(buffer) {
+    return btoa(String.fromCharCode.apply(null, buffer))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  }
+
+  function generateCodeVerifier() {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return base64URLEncode(array);
+  }
+
+  async function generateCodeChallenge(verifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return base64URLEncode(new Uint8Array(hash));
+  }
+
+  // Iniciar login (redirigir a OAuth con PKCE)
+  const signinRedirect = async () => {
+    console.log('🔐 Iniciando login OAuth con PKCE...');
     console.log('Authority:', OAUTH_CONFIG.authority);
     
     const state = Math.random().toString(36).substring(7);
     sessionStorage.setItem('oauth_state', state);
+
+    // Generar PKCE code_verifier y code_challenge
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
+    
+    // Guardar code_verifier en sessionStorage
+    sessionStorage.setItem('code_verifier', codeVerifier);
+    
+    console.log('✅ PKCE code_verifier generado y guardado');
+    console.log('✅ PKCE code_challenge generado:', codeChallenge.substring(0, 20) + '...');
 
     const authUrl = new URL(`${OAUTH_CONFIG.authority}/oauth2/authorize`);
     authUrl.searchParams.append('response_type', OAUTH_CONFIG.response_type);
@@ -143,6 +174,8 @@ export const AuthProvider = ({ children }) => {
     authUrl.searchParams.append('redirect_uri', OAUTH_CONFIG.redirect_uri);
     authUrl.searchParams.append('scope', OAUTH_CONFIG.scope);
     authUrl.searchParams.append('state', state);
+    authUrl.searchParams.append('code_challenge', codeChallenge);
+    authUrl.searchParams.append('code_challenge_method', 'S256');
 
     console.log('🔗 Redirigiendo a:', authUrl.toString());
     window.location.href = authUrl.toString();
