@@ -51,6 +51,7 @@ const eliminarSucursal = (id) =>
 // ✅ Un solo objeto exportado como named + default
 export const inventarioService = {
   listarInventarios,
+  getInventarios: listarInventarios, // Alias
   obtenerInventario,
   actualizarInventario,
   listarSucursales,
