@@ -27,7 +27,7 @@ const DashboardAdmin = () => {
                 catalogoService.getMedicamentos().catch(() => []),
                 inventarioService.getSucursales().catch(() => []),
                 inventarioService.getInventarios().catch(() => []),
-                ventasService.getVentas().catch(() => [])
+                ventasService.listarVentas().catch(() => [])
             ]);
 
             // Identificar productos con stock bajo (menos de 10 unidades)
