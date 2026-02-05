@@ -221,8 +221,8 @@ public class SecurityConfig {
         @Bean
         public AuthorizationServerSettings authorizationServerSettings() {
                 return AuthorizationServerSettings.builder()
-                                .issuer(oauthIssuerUri)
-                                .build();
+                        .issuer("https://oauth-server-542757597043.us-central1.run.app")
+                        .build();
         }
 
         @Bean
