@@ -219,9 +219,10 @@ public class SecurityConfig {
         }
 
         @Bean
-        public AuthorizationServerSettings authorizationServerSettings() {
+        public AuthorizationServerSettings authorizationServerSettings(
+                @Value("${OAUTH_ISSUER_URL:https://oauth-server-542757597043.us-central1.run.app}") String issuerUrl) {
                 return AuthorizationServerSettings.builder()
-                        .issuer("https://oauth-server-542757597043.us-central1.run.app")
+                        .issuer(issuerUrl)
                         .build();
         }
 
