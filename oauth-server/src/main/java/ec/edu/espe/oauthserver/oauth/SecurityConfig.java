@@ -79,6 +79,7 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
+                "https://ms-frontend-542757597043.us-central1.run.app/",
                 frontendUrl,          // Tu URL exacta
                 frontendUrl + "/",    // Tu URL con barra
                 "https://*.run.app"   // <--- LA BALA DE PLATA: Cualquier subdominio en Cloud Run
