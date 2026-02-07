@@ -48,7 +48,7 @@ import java.util.UUID;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("\${FRONTEND_URL:https://ms-frontend-542757597043.us-central1.run.app}")
+    @Value("\${FRONTEND_URL:http://localhost:3000}")
     private String frontendUrl;
 
     @Value("\${OAUTH_ISSUER_URI:http://localhost:9000}")
