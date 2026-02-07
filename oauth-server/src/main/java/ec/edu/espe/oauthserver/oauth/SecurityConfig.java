@@ -220,7 +220,7 @@ public class SecurityConfig {
 
         @Bean
         public AuthorizationServerSettings authorizationServerSettings(
-                @Value("${OAUTH_ISSUER_URL:https://oauth-server-542757597043.us-central1.run.app}") String issuerUrl) {
+                @Value("${spring.security.oauth2.authorizationserver.issuer}") String issuerUrl) {
                 return AuthorizationServerSettings.builder()
                         .issuer(issuerUrl)
                         .build();
