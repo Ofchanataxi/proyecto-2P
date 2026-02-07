@@ -98,17 +98,20 @@ public class SecurityConfig {
         public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
                 OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
                 http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-                                .oidc(Customizer.withDefaults()); // Enable OpenID Connect 1.0
+                .oidc(Customizer.withDefaults()); // Habilitar OpenID Connect
 
+                // --- ESTE BLOQUE ES EL QUE FALTA ---
+                // Le dice al servidor: "Si alguien intenta autorizar sin loguearse, mándalo al login"
                 http.exceptionHandling((exceptions) -> exceptions
-                                .defaultAuthenticationEntryPointFor(
-                                                new LoginUrlAuthenticationEntryPoint("/login"),
-                                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
-                                .oauth2ResourceServer((resourceServer) -> resourceServer
-                                                .jwt(Customizer.withDefaults()));
+                .defaultAuthenticationEntryPointFor(
+                        new LoginUrlAuthenticationEntryPoint("/login"),
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                )
+                );
+                // -----------------------------------
 
-                // ACTIVAR CORS AQUÍ TAMBIÉN
-                http.cors(Customizer.withDefaults());
+                http.oauth2ResourceServer((resourceServer) -> resourceServer
+                .jwt(Customizer.withDefaults()));
 
                 return http.build();
         }
