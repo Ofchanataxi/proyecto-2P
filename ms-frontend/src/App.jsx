@@ -9,7 +9,7 @@ import Profile from './pages/Profile'
 import Sucursales from './pages/Sucursales'
 import LoginPage, { LoginLoading, LoginError } from './pages/Login'
 import './App.css'
-import { useAuth } from "react-oidc-context";
+import { useAuth } from './context/AuthContext'
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

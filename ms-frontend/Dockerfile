@@ -12,6 +12,12 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Set build-time environment variables for Vite
+ARG VITE_OIDC_AUTHORITY=https://oauth-server-d7ilz24p4a-uc.a.run.app
+ARG VITE_API_GATEWAY_HOST=https://gateway-d7ilz24p4a-uc.a.run.app
+ENV VITE_OIDC_AUTHORITY=${VITE_OIDC_AUTHORITY}
+ENV VITE_API_GATEWAY_HOST=${VITE_API_GATEWAY_HOST}
+
 # Build the app
 RUN npm run build
 

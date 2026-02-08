@@ -5,7 +5,7 @@ services:
     container_name: mysql-farmacia
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     ports:
       - "3307:3306"
@@ -23,9 +23,9 @@ services:
     container_name: postgres-oauth
     restart: always
     environment:
-      POSTGRES_DB: db_oauth
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
@@ -36,14 +36,15 @@ services:
     build: ./ms-catalogo
     container_name: ms-catalogo
     ports:
-      - "8081:8081"
+      - "${CATALOGO_PORT}:8081"
     environment:
       - SERVER_PORT=8081
-      - DB_HOST=mysql-db
-      - DB_PORT=3306
+      - DB_HOST=${MYSQL_HOST}
+      - DB_PORT=${MYSQL_PORT}
       - DB_NAME=db_catalogo
       - DB_USER=root
-      - DB_PASSWORD=admin
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - OAUTH_ISSUER_URI=${OAUTH_URL}
     depends_on:
       mysql-db:
         condition: service_healthy
@@ -54,15 +55,16 @@ services:
     build: ./ms-inventario
     container_name: ms-inventario
     ports:
-      - "8082:8082"
+      - "${INVENTARIO_PORT}:8082"
     environment:
       - SERVER_PORT=8082
-      - DB_HOST=mysql-db
-      - DB_PORT=3306
+      - DB_HOST=${MYSQL_HOST}
+      - DB_PORT=${MYSQL_PORT}
       - DB_NAME=db_inventario
       - DB_USER=root
-      - DB_PASSWORD=admin
-      - CATALOGO_URL=http://ms-catalogo:8081/api/medicamentos
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - CATALOGO_URL=${CATALOGO_INTERNAL_URL}/api/medicamentos
+      - OAUTH_ISSUER_URI=${OAUTH_URL}
     depends_on:
       mysql-db:
         condition: service_healthy
@@ -75,16 +77,17 @@ services:
     build: ./ms-ventas
     container_name: ms-ventas
     ports:
-      - "8083:8083"
+      - "${VENTAS_PORT}:8083"
     environment:
       - SERVER_PORT=8083
-      - DB_HOST=mysql-db
-      - DB_PORT=3306
+      - DB_HOST=${MYSQL_HOST}
+      - DB_PORT=${MYSQL_PORT}
       - DB_NAME=db_ventas
       - DB_USER=root
-      - DB_PASSWORD=admin
-      - CATALOGO_URL=http://ms-catalogo:8081/api/medicamentos
-      - INVENTARIO_URL=http://ms-inventario:8082/api/inventarios
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - CATALOGO_URL=${CATALOGO_INTERNAL_URL}/api/medicamentos
+      - INVENTARIO_URL=${INVENTARIO_INTERNAL_URL}/api/inventarios
+      - OAUTH_ISSUER_URI=${OAUTH_URL}
     depends_on:
       mysql-db:
         condition: service_healthy
@@ -99,13 +102,13 @@ services:
     build: ./gateway
     container_name: api-gateway
     ports:
-      - "8080:8080"
+      - "${GATEWAY_PORT}:8080"
     environment:
       - SERVER_PORT=8080
-      - CATALOGO_URI=http://ms-catalogo:8081
-      - INVENTARIO_URI=http://ms-inventario:8082
-      - VENTAS_URI=http://ms-ventas:8083
-      - OAUTH_URI=http://oauth-server:9000
+      - CATALOGO_URI=${CATALOGO_INTERNAL_URL}
+      - INVENTARIO_URI=${INVENTARIO_INTERNAL_URL}
+      - VENTAS_URI=${VENTAS_INTERNAL_URL}
+      - OAUTH_URI=${OAUTH_INTERNAL_URL}
       - LOG_LEVEL=DEBUG
     depends_on:
       ms-catalogo:
@@ -128,9 +131,11 @@ services:
     build: ./ms-frontend
     container_name: ms-frontend
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT}:3000"
     environment:
-      - VITE_API_GATEWAY_HOST=http://localhost:8080
+      - VITE_API_GATEWAY_HOST=${GATEWAY_URL}
+      - VITE_OIDC_AUTHORITY=${OAUTH_URL}
+      - VITE_FRONTEND_URL=${FRONTEND_URL}
       - NODE_ENV=production
     depends_on:
       gateway:
@@ -142,12 +147,14 @@ services:
     build: ./oauth-server
     container_name: oauth-server
     ports:
-      - "9000:9000"
+      - "${OAUTH_PORT}:9000"
     environment:
       - SERVER_PORT=9000
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/db_oauth
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - OAUTH_ISSUER_URI=${OAUTH_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
       - postgres-db
     restart: unless-stopped

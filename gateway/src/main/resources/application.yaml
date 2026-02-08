@@ -28,7 +28,7 @@ spring:
       routes:
         # OAuth Server - Autenticación
         - id: oauth-server
-          uri: ${OAUTH_URI:http://oauth-server:9000}
+          uri: ${OAUTH_URI:https://oauth-server-d7ilz24p4a-uc.a.run.app}
           predicates:
             - Path=/oauth2/**, /.well-known/**, /login, /logout, /usuarios/**
           filters:

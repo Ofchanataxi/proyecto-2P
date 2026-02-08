@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from 'react-oidc-context';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import usuarioService from '../services/usuarioService';
 import './Profile.css';
 
 const Profile = () => {
-    const auth = useAuth();
+    const { user, isAuthenticated, login } = useAuth();
     const navigate = useNavigate();
     const [profileImage, setProfileImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
@@ -27,13 +27,12 @@ const Profile = () => {
     });
 
     useEffect(() => {
-        if (auth.user) {
-            const user = auth.user;
-            const userName = user?.profile?.preferred_username || user?.profile?.sub || 'Usuario';
+        if (user) {
+            const userName = user.preferred_username || user.username || user.sub || 'Usuario';
 
             // Detect role
             let role = 'USER';
-            const roleClaim = user?.profile?.role || user?.profile?.roles || user?.profile?.authorities;
+            const roleClaim = user.role || user.roles || user.authorities;
             if (roleClaim) {
                 const roles = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
                 if (roles.includes('ADMIN') || roles.includes('ROLE_ADMIN')) role = 'ADMIN';
@@ -44,14 +43,14 @@ const Profile = () => {
             setUserInfo({
                 username: userName,
                 role: role,
-                id: user.profile.sub // Assuming sub is ID, or we fetch from API
+                id: user.sub // Assuming sub is ID, or we fetch from API
             });
 
             // Load saved profile image
             const savedImage = localStorage.getItem(`profile_image_${userName}`);
             if (savedImage) setPreviewImage(savedImage);
         }
-    }, [auth.user]);
+    }, [user]);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -99,13 +98,13 @@ const Profile = () => {
         setShowPasswordSection(false);
     };
 
-    if (!auth.isAuthenticated) {
+    if (!isAuthenticated) {
         return (
             <div className="profile-page">
                 <div className="container">
                     <div className="not-authenticated">
                         <h2>Acceso Requerido</h2>
-                        <button onClick={() => auth.signinRedirect()} className="btn-login">Iniciar Sesión</button>
+                        <button onClick={() => navigate('/login')} className="btn-login">Iniciar Sesión</button>
                     </div>
                 </div>
             </div>

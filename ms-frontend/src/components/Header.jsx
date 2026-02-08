@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useAuth } from 'react-oidc-context';
+import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import './Header.css';
 import Modal from './Modal';
 
 const Header = () => {
-  const auth = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { getItemCount, clearCart } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -16,12 +16,11 @@ const Header = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Obtener información del usuario desde el token
-  const user = auth?.user;
-  const userName = user?.profile?.preferred_username || user?.profile?.sub || 'Usuario';
+  const userName = user?.preferred_username || user?.username || user?.sub || 'Usuario';
 
   // Lógica de detección de rol con fallback
   let userRole = 'USER';
-  const roleClaim = user?.profile?.role || user?.profile?.roles || user?.profile?.authorities;
+  const roleClaim = user?.role || user?.roles || user?.authorities;
 
   if (roleClaim) {
     const roles = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
@@ -56,19 +55,14 @@ const Header = () => {
     try {
       // Limpiar datos locales
       clearCart();
-      localStorage.clear();
-      sessionStorage.clear();
-
-      // Remover usuario OIDC
-      if (auth?.removeUser) {
-        await auth.removeUser();
-      }
-
-      // Redirigir al endpoint de logout a través del Gateway
-      window.location.href = 'http://localhost:8080/logout';
+      
+      // Usar la función logout del contexto
+      await logout();
+      
+      // Redirigir al home
+      navigate('/');
     } catch (error) {
       console.error('Error logout:', error);
-      window.location.href = 'http://localhost:8080/logout';
     }
   };
 
@@ -91,7 +85,7 @@ const Header = () => {
               <span>⏰ Horario: 24/7</span>
             </div>
 
-            {auth.isAuthenticated ? (
+            {isAuthenticated ? (
               <div className="user-section">
                 <div
                   className="user-info-btn"
@@ -132,7 +126,7 @@ const Header = () => {
               </div>
             ) : (
               <div className="auth-links">
-                <button onClick={() => auth.signinRedirect()}>Iniciar Sesión</button>
+                <button onClick={() => navigate('/login')}>Iniciar Sesión</button>
               </div>
             )}
           </div>
