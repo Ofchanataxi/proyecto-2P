@@ -63,7 +63,7 @@ public class SecurityConfig {
                         .password(usuario.getPassword())
                         // IMPORTANTE: .roles() añade automáticamente "ROLE_"
                         // Tu DB tiene "ADMIN", aquí pasará a ser "ROLE_ADMIN"
-                        .roles(usuario.getRol()) 
+                        .roles(usuario.getRole()) 
                         .disabled(!usuario.isEnabled())
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
